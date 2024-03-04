@@ -131,18 +131,6 @@ public:
 
   
    //Get the distance from the ultrasonic sensor connected to the given pins.
-   
-
-  int getDistance(int trigPin, int echoPin) {
-    // Function to get the distance from the ultrasonic sensor
-    digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
-
-    return pulseIn(echoPin, HIGH) * 0.034 / 2;
-  }
 };
 
 GuestCounter guestCounter;
