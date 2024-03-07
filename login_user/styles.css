@@ -1,0 +1,49 @@
+ body{
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+ }
+ *{
+    box-sizing: border-box;
+ }
+ form{
+    width: 500px;
+    border: 5px solid white;
+    padding: 30px;
+    background: black;
+    border-radius: 15px;
+ }
+ input{
+    display: block;
+    border: 2px solid white;
+    width: 95%;
+    padding: 10px;
+    margin: 10px auto;
+    border-radius: 5px;
+    background: black;
+    color: white;
+ }
+ button{
+    display: block;
+    margin: 0 auto;
+    margin-top: 10px;
+    background: white;
+    border-radius: 10px;
+    padding: 10px 20px;
+    margin-bottom: 30px;
+    width: 14vh;
+ }
+ button:hover{
+    opacity: .7;
+    
+ }
+ .error{
+    background: #f2dede;
+    color: #a94442;
+    padding: 10px;
+    width: 95%;
+    border-radius: 5px;
+    margin: 20px auto;
+ }
