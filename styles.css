@@ -1,0 +1,103 @@
+/*global styles*/
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/*login css*/
+
+.login body{
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login form{
+    width: 500px;
+    border: 5px solid white;
+    padding: 30px;
+    background: black;
+    border-radius: 15px;
+}
+.login input{
+    display: block;
+    border: 2px solid white;
+    width: 95%;
+    padding: 10px;
+    margin: 10px auto;
+    border-radius: 5px;
+    background: black;
+    color: white;
+}
+.login button{
+    display: block;
+    margin: 0 auto;
+    margin-top: 10px;
+    background: white;
+    border-radius: 10px;
+    padding: 10px 20px;
+    margin-bottom: 30px;
+    width: 14vh;
+}
+.login button:hover{
+    opacity: .7;
+    
+}
+.login .error{
+    background: #f2dede;
+    color: #a94442;
+    padding: 10px;
+    width: 95%;
+    border-radius: 5px;
+    margin: 20px auto;
+}
+
+/*index css*/
+.workout {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    min-width: 240px;
+    float: left;
+    text-align: center;
+    position: relative;
+    aspect-ratio: 1.614;
+}
+
+.workout img {
+    max-width: 100%;
+    height: auto;
+}
+
+.add-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.description {
+    display: none;
+    top: 0;
+    left: 0;
+    position: absolute; 
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    text-align: left;
+    overflow: auto;
+    z-index: 1;
+}
+
+.workout:hover .description {
+    display: block;
+}
