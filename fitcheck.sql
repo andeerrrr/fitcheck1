@@ -1,15 +1,17 @@
 -- Create Users table
 CREATE TABLE Users (
-    user_id INT PRIMARY KEY,
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    firstname VARCHAR(255) NOT NULL,
+    lastname VARCHAR(255) NOT NULL,
     username VARCHAR(255) NOT NULL,
     pword VARCHAR(255) NOT NULL,
-    fullName VARCHAR(255) NOT NULL
+    sex VARCHAR(6) NOT NULL,
+    dob DATE
 );
 
 -- Insert sample values into Users table
-INSERT INTO Users (user_id, username, fullName, pword) VALUES
-(1, 'anderrr', 'Andre Louis Tanalgo', 'password'),
-(2, 'admin', 'admin', 'password');
+INSERT INTO Users (firstname, lastname, username, pword, sex, dob) VALUES
+('andre', 'tanalgo', 'admin','123','male','1990-01-01');
 
 -- Create Workouts table with an additional column for image URLs
 CREATE TABLE Workouts (
