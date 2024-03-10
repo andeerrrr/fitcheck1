@@ -3,9 +3,9 @@ session_start();
 include 'functions.php';
 
 //Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['login'])) {
     // Redirect to the login page
-    header("Location: login_index.php");
+    header("Location: login.php");
     exit();
 } 
 
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createRoutine'])) {
 $workouts = getAllWorkouts();
 
 // Get all saved routines for the logged-in user
-// $routines = getAllRoutinesForUser($_SESSION['user_id']);
+$routines = getAllRoutinesForUser($_SESSION['user_id']);
 ?>
 
 <!DOCTYPE html>
@@ -35,7 +35,7 @@ $workouts = getAllWorkouts();
 <body>
 
     <h2>Workouts</h2>
-
+    <h1><?php echo $_SESSION['firstname']; ?></h1>
     <form action="" method="post">
         <ul>
             <?php
@@ -56,7 +56,7 @@ $workouts = getAllWorkouts();
 
     <ul>
         <?php
-            if (isset($routines) && is_array($routines)) {
+            if (isset($routines) && is_array($routines) && !empty($routines)) {
                 foreach ($routines as $routine) {
                     echo "<li>{$routine['routine_name']} - <a href='view_routine.php?routine_id={$routine['routine_id']}'>View Routine</a></li>";
                 }
@@ -68,6 +68,7 @@ $workouts = getAllWorkouts();
 
     <!-- Link to the Add to Session page -->
     <a href="add_to_session.php">Add Workouts to Session</a>
+    <footer><a href="logout.php">logout</a></footer>
 
 </body>
 </html>

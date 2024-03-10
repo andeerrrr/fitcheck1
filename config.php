@@ -1,16 +1,14 @@
 <?php
+$sname = "localhost";
+$uname = "root";
+$password = "";
+$db_name = "fitcheck";
 
-$host = 'localhost';
-$dbname = 'fitcheck';
-$username = 'root';
-$password = '';
+// Create connection
+$conn = new mysqli($sname, $uname, $password, $db_name);
 
-$dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
-
-try {
-    $pdo = new PDO($dsn, $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        die("Connection failed: " . $e->getMessage());
-    }
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 ?>
