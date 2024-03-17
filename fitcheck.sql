@@ -1,5 +1,5 @@
 -- Create Users table
-CREATE TABLE Users (
+CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     firstname VARCHAR(255) NOT NULL,
     lastname VARCHAR(255) NOT NULL,
@@ -10,11 +10,11 @@ CREATE TABLE Users (
 );
 
 -- Insert sample values into Users table
-INSERT INTO Users (firstname, lastname, username, pword, sex, dob) VALUES
+INSERT INTO users (firstname, lastname, username, pword, sex, dob) VALUES
 ('andre', 'tanalgo', 'admin','123','male','1990-01-01');
 
 -- Create Workouts table with an additional column for image URLs
-CREATE TABLE Workouts (
+CREATE TABLE workouts (
     workout_id INT PRIMARY KEY,
     workout_name VARCHAR(255) NOT NULL,
     workout_description TEXT,
@@ -22,7 +22,7 @@ CREATE TABLE Workouts (
 );
 
 -- Insert sample values into Workouts table with image URLs
-INSERT INTO Workouts (workout_id, workout_name, workout_description, image_url) VALUES
+INSERT INTO workouts (workout_id, workout_name, workout_description, image_url) VALUES
 (1, 'Bench Press', 'Compound exercise targeting chest, triceps, and shoulders. Lie on back, unrack bar, lower to chest, and push back up.', 'images/bench_press.jpg'), 
 (2, 'Deadlifts', 'Full-body exercise working posterior chain, including lower back, glutes, and hamstrings. Stand with barbell, bend at hips and knees, grasp bar, and lift by extending hips and knees.', 'images/deadlift.jpg'), 
 (3, 'Squats', 'Fundamental lower-body exercise targeting quads, hamstrings, and glutes. Stand with feet shoulder-width apart, lower body by bending knees, and push back up.', 'images/squats.jpg'), 
@@ -54,20 +54,37 @@ INSERT INTO Workouts (workout_id, workout_name, workout_description, image_url) 
 (29, 'Box Jumps', 'Plyometric exercise for leg power. Jump onto sturdy box, land softly, and step back down.', 'images/box_jumps.jpg'), 
 (30, 'Bent Over Rows', 'Target mid-back. Bend at hips, hold dumbbells, and pull elbows back, squeezing shoulder blades together.', 'images/bent_over_rows.jpg');
 -- Create UserRoutines table for the many-to-many relationship
-CREATE TABLE Routines (
-    routine_id INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE routines (
+    routine_id INT AUTO_INCREMENT PRIMARY KEY,
     routine_name VARCHAR(255) NOT NULL,
+    routine_description TEXT,
     user_id INT,
-    workout_id INT,
-    workout_sets INT,
-    reps INT,
-    volume INT,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id),
-    FOREIGN KEY (workout_id) REFERENCES Workouts(workout_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
 -- Insert sample values into UserRoutines table
-INSERT INTO Routines (routine_name, user_id, workout_id, workout_sets, reps, volume) VALUES
-('Routine 1', 1, 1, 3, 10, 30),
-('Routine 2', 1, 2, 4, 8, 32),
-('Routine 3', 2, 3, 3, 12, 36);
+INSERT INTO routines (routine_id, routine_name,routine_description,user_id) VALUES
+(1,'WEIGHTLOSS PROGRAM','Revolutionize your weight loss journey with our personalized program. Say goodbye to fad diets and hello to sustainable results. Lets transform together!',1),
+(2,'MOBILITY PROGRAM', 'Unlock freedom with our mobility program. Tailored exercises and expert guidance help you move better and live stronger. Say hello to a more agile you!',1),
+(3,'BODYBUILDING PROGRAM', 'Transform your physique with our bodybuilding program. Customized workouts and expert guidance help you pack on muscle and reach your goals. Lets build together!',1),
+(4,'CARDIOVASCULAR ENDURANCE', 'Boost your endurance with our cardio program. Tailored workouts and expert guidance enhance your stamina and vitality. Ready to conquer any challenge!',1);
+
+CREATE TABLE routine_workouts(
+    routine_id INT,
+    routine_name VARCHAR(255) NOT NULL,
+    user_id INT,
+    workout_id INT,
+    workout_sets INT AUTO_INCREMENT PRIMARY KEY,
+    reps INT,
+    volume INT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (routine_id) REFERENCES routines(routine_id),
+    FOREIGN KEY (workout_id) REFERENCES workouts(workout_id)
+);
+
+INSERT INTO routine_workouts(user_id, routine_name, routine_id, workout_id, workout_sets, reps, volume) VALUES
+(1,'WEIGHTLOSS PROGRAM', 1, 1, 1, 10, 20);
+
+SELECT routine_workouts.*, workouts.workout_name 
+FROM routine_workouts 
+JOIN workouts ON routine_workouts.workout_id = workouts.workout_id;
