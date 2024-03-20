@@ -1,14 +1,10 @@
 <?php
-$sname = "localhost";
-$uname = "root";
+
+$sname= "localhost";
+$uname= "root";
 $password = "";
 $db_name = "fitcheck";
 
-// Create connection
-$conn = new mysqli($sname, $uname, $password, $db_name);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if (!$conn = mysqli_connect($sname, $uname, $password, $db_name)) {
+    die("Connection failed!");
 }
-?>
