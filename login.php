@@ -23,12 +23,14 @@
         $login = "SELECT * FROM users where username ='$username'";
         $result = $conn->query($login);
     
+        
             if($result->num_rows > 0) {
                 $row = $result->fetch_assoc();
                 
                 if($row['pword'] == $password) {
                     session_start();
-    
+
+                    $_SESSION['user_id'] = $row['user_id'];
                     $_SESSION['username'] = $row['username'];
                     $_SESSION['password'] = $row['pword'];
                     $_SESSION['firstname'] = $row['firstname'];

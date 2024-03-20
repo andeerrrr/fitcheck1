@@ -6,8 +6,10 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL,
     pword VARCHAR(255) NOT NULL,
     sex VARCHAR(6) NOT NULL,
-    dob DATE
+    dob DATE,
+    profile_picture VARCHAR(255) -- Add column for profile picture
 );
+
 
 -- Insert sample values into Users table
 INSERT INTO users (firstname, lastname, username, pword, sex, dob) VALUES
@@ -71,10 +73,9 @@ INSERT INTO routines (routine_id, routine_name,routine_description,user_id) VALU
 
 CREATE TABLE routine_workouts(
     routine_id INT,
-    routine_name VARCHAR(255) NOT NULL,
     user_id INT,
     workout_id INT,
-    workout_sets INT AUTO_INCREMENT PRIMARY KEY,
+    workout_sets INT,
     reps INT,
     volume INT,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
@@ -82,8 +83,8 @@ CREATE TABLE routine_workouts(
     FOREIGN KEY (workout_id) REFERENCES workouts(workout_id)
 );
 
-INSERT INTO routine_workouts(user_id, routine_name, routine_id, workout_id, workout_sets, reps, volume) VALUES
-(1,'WEIGHTLOSS PROGRAM', 1, 1, 1, 10, 20);
+INSERT INTO routine_workouts( routine_id, user_id, workout_id, workout_sets, reps, volume) VALUES
+(1, 1, 1, 1, 10, 20);
 
 SELECT routine_workouts.*, workouts.workout_name 
 FROM routine_workouts 
