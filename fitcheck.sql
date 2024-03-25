@@ -71,20 +71,18 @@ INSERT INTO routines (routine_id, routine_name,routine_description,user_id) VALU
 (3,'BODYBUILDING PROGRAM', 'Transform your physique with our bodybuilding program. Customized workouts and expert guidance help you pack on muscle and reach your goals. Lets build together!',1),
 (4,'CARDIOVASCULAR ENDURANCE', 'Boost your endurance with our cardio program. Tailored workouts and expert guidance enhance your stamina and vitality. Ready to conquer any challenge!',1);
 
-CREATE TABLE routine_workouts(
+CREATE TABLE routine_workouts (
     routine_id INT,
     user_id INT,
     workout_id INT,
-    workout_sets INT,
     reps INT,
     volume INT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (routine_id) REFERENCES routines(routine_id),
     FOREIGN KEY (workout_id) REFERENCES workouts(workout_id)
 );
 
-INSERT INTO routine_workouts( routine_id, user_id, workout_id, workout_sets, reps, volume) VALUES
-(1, 1, 1, 1, 10, 20);
 
 SELECT routine_workouts.*, workouts.workout_name 
 FROM routine_workouts 

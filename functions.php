@@ -122,14 +122,14 @@ function getUserWorkouts($user_id) {
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function addWorkoutToRoutine($routineId, $userId, $workoutId, $sets, $reps, $volume) {
+function addWorkoutToRoutine($routineId, $userId, $workoutId, $reps, $volume) {
     global $conn;
 
     // Prepare the SQL statement
-    $stmt = $conn->prepare("INSERT INTO routine_workouts (routine_id, user_id, workout_id, workout_sets, reps, volume) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO routine_workouts (routine_id, user_id, workout_id, reps, volume) VALUES (?, ?, ?, ?, ?)");
 
     // Bind parameters and execute the statement
-    $stmt->bind_param("iiiiii", $routineId, $userId, $workoutId, $sets, $reps, $volume);
+    $stmt->bind_param("iiiii", $routineId, $userId, $workoutId, $reps, $volume);
     $success = $stmt->execute();
 
     // Close the statement
@@ -137,6 +137,7 @@ function addWorkoutToRoutine($routineId, $userId, $workoutId, $sets, $reps, $vol
 
     return $success;
 }
+
 
 function deleteWorkoutFromRoutine($routineId, $workoutId) {
     global $conn;
