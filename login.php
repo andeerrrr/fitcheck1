@@ -57,17 +57,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="icon" type="image/x-icon" href="Assets/icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
 </head>
-<body>
+<body class="login">
+    <div class="container">
     <form method="post">
+        <center><img src="Assets/logo.png"></center>
         <label for="textbox"></label>
-        <input type="text" name="uname" placeholder="Username" >
+        <input type="text" name="uname" placeholder="Username" id="uname" class="typing">
         <label for="textbox"></label><br><br>
-        <input type="password" name="pwd" placeholder="Password"><br><br>
-        <input type="submit" value = "Login" name = "login"><br><br>
-        <a href="sign_up.php">Don't have an account?</a>
+        <input type="password" name="pwd" placeholder="Password" id="pass" class="typing">
+        <input type="submit" value = "Login" name = "login" id="loginbt"><br>
+        <a href="sign_up.php" id="sign_up">Don't have an account?</a>
     </form>
+    </div>
 </body>
 </html>
