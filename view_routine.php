@@ -36,14 +36,13 @@ $workouts = getAllWorkouts();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveWorkout'])) {
     // Retrieve form data
     $selectedWorkoutId = $_POST['workoutId'];
-    $newWorkoutSets = $_POST['sets'];
     $newWorkoutReps = $_POST['reps'];
     $newWorkoutVolume = $_POST['volume'];
 
     // Validate form data (you can add more validation as needed)
 
     // Add the new workout to the routine
-    $success = addWorkoutToRoutine($routineId, $userId, $selectedWorkoutId, $newWorkoutSets, $newWorkoutReps, $newWorkoutVolume);
+    $success = addWorkoutToRoutine($routineId, $userId, $selectedWorkoutId, $newWorkoutReps, $newWorkoutVolume);
 
     if ($success) {
         // Refresh the page to reflect the changes
@@ -108,31 +107,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteWorkout'])) {
     
     <h4>Workouts:</h4>
     <table>
-        <tr>
-            <th>Workout Name</th>
-            <th>Sets</th>
-            <th>Reps</th>
-            <th>Volume</th>
-            <th>Action</th>
-        </tr>
-        <?php
-        // Loop through each workout in the routine
-        foreach ($routine['workouts'] as $workout) {
+    <?php
+    // Array to keep track of workouts that have been displayed
+    $displayedWorkouts = [];
+
+    // Loop through each workout in the routine
+    foreach ($routine['workouts'] as $workout) {
+        // Check if the workout has been displayed already
+        if (!in_array($workout['workout_id'], $displayedWorkouts)) {
+            // If not displayed, display the workout and create a new table
             echo "<tr>";
             echo "<td>{$workout['workout_name']}</td>";
-            echo "<td>{$workout['workout_sets']}</td>";
-            echo "<td>{$workout['reps']}</td>";
-            echo "<td>{$workout['volume']}</td>";
-            echo "<td>
-                    <form class='inline' action='' method='post'>
-                        <input type='hidden' name='deleteWorkoutId' value='{$workout['workout_id']}'>
-                        <button type='submit' name='deleteWorkout'>Delete</button>
-                    </form>
-                  </td>";
             echo "</tr>";
+            echo "<tr>";
+            echo "<th>Set</th>";
+            echo "<th>Reps</th>";
+            echo "<th>Volume</th>";
+            echo "<th>Action</th>";
+            echo "</tr>";
+            // Add the workout ID to the displayed workouts array
+            $displayedWorkouts[] = $workout['workout_id'];
         }
-        ?>
-    </table>
+
+        // Display each set for the current workout
+        echo "<tr>";
+        echo "<td>{}</td>";
+        echo "<td>{$workout['reps']}</td>";
+        echo "<td>{$workout['volume']}</td>";
+        echo "<td>
+                <form class='inline' action='' method='post'>
+                    <input type='hidden' name='deleteWorkoutId' value='{$workout['workout_id']}'>
+                    <button type='submit' name='deleteWorkout'>Delete</button>
+                </form>
+              </td>";
+        echo "</tr>";
+    }
+    ?>
+</table>
+
     
     <!-- Form to add a new workout -->
     <h4>Add Workout:</h4>
@@ -146,8 +158,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteWorkout'])) {
         <?php } ?>
     </select><br><br>
     
-    <label for="sets">Sets:</label>
-    <input type="number" name="sets" id="sets" required><br><br>
+    <!-- Initial value of set column is 1 -->
+    <input type="hidden" name="sets" value="1">
     
     <label for="reps">Reps:</label>
     <input type="number" name="reps" id="reps" required><br><br>
@@ -161,4 +173,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteWorkout'])) {
     <a href="index.php">Go Back to Dashboard</a>
 </body>
 </html>
-
