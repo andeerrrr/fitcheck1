@@ -41,7 +41,7 @@ if(isset($_SESSION['username'])){
         </ul>
         <div class="footer">
             <img src="<?php echo $profile_picture_url; ?>" alt="Profile Picture">
-            <img src="images/logout.png" alt="Logout">
+            <a href="logout.php"><img src="images/logout.png" alt="Logout"></a>
         </div>
     </div>
 </body>
