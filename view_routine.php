@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 }
             }
 
-            function newWorkOut() {
+            function newWorkout(workoutName, workoutId) {
                 var targCont = document.getElementById("workOuts");
                 //Title, Table, and Button Container
                 var tempCont = document.createElement("div");
@@ -173,11 +173,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 //Title
                 var tempPrgph = document.createElement("p");
                 var tempBold = document.createElement("b");
-                tempBold.textContent = "Workout";
+                tempBold.textContent = workoutName;
                 //Hidden input(For form)
                 var tempTitle = document.createElement("input");
                 tempTitle.type = "hidden";
-                tempTitle.value = "Workout";
+                tempTitle.value = workoutId;
                 tempTitle.name = "title" + tableIndex;
                 tableTitles.push(tempTitle);
                 tempPrgph.appendChild(tempBold);
@@ -236,7 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 var tempButton = document.createElement("Button");
                 tempButton.type ="button";
                 tempButton.textContent = "Delete Table";
-                tempButton.addEventListener('click', (function(var1) {return function() {deleteTable(var1)};})(tempCont));
+                tempButton.addEventListener('click', (function(var1, var2) {return function() {deleteTable(var1, var2)};})(tempCont, workoutId));
                 tempCont.appendChild(tempButton);
             }
 
@@ -307,7 +307,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 }
             }
 
-            function deleteTable(targCont) {
+            function deleteTable(targCont, workoutId) {
+                var tempButton = document.getElementById('workout' + workoutId);
+                tempButton.style.display = "";
+
                 var tempIndex = conts.indexOf(targCont);
                 if(tempIndex!==-1) {
                     targCont.remove();
@@ -332,6 +335,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 }
             }
 
+            function hideButton(tempButton, workoutName, workoutId) {
+                tempButton.style.display = "none";
+                newWorkout(workoutName, workoutId);
+            }
+
             window.onload = initialize;
         </script>
     </head>
@@ -347,15 +355,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 </div>
                 <?php
                     if($userId==$routine['user_id']) {
-                        echo "<button type=\"button\" onclick=\"newWorkOut()\">Add</button>";
-                        echo "<input type=\"submit\" value=\"Save\" name=\"submit\">";
+                        echo "<input type='submit' value='Save' name='submit'>";
                     }
                 ?>
             </form>
-            <a href="index.php">Go Back to Dashboard</a>
+            <a href="index.php">Go Back to Dashboard</a>    
         </div>
         <div class="workoutsDiv">
-
+            <div class="filterDiv">
+                <p>Muscle Groups:</p>
+                <select name="workoutsFilter" id="workoutsFilter" title="workoutsFilter">
+                    <option value="">All Muscle Groups</option>
+                    <?php
+                    // Fetch distinct muscle groups from the database
+                    $muscle_groups = array_unique(array_column($workouts, 'workout_muscle_group'));
+                    foreach ($muscle_groups as $muscle_group) {
+                        echo "<option value='$muscle_group'>$muscle_group</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+            <div class="workoutsInnerDiv">
+                <?php
+                    // Filter workouts based on selected category and muscle group
+                    $filtered_workouts = $workouts; // Initialize with all workouts
+                    foreach ($filtered_workouts as $workout) {
+                        $tempString = "<button class='workout' id='workout".$workout['workout_id']."' onclick='hideButton(this, \"".$workout['workout_name']."\", ".$workout['workout_id'].")'>"
+                            .$workout['workout_name']
+                            ."</button>";
+                        echo $tempString;
+                    }
+                    ?>
+            </div>
         </div>
     </body>
 </html>
