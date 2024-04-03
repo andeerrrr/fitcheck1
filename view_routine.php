@@ -400,21 +400,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
         <div class="workoutsDiv">
             <div class="filterDiv">
                 <p>Muscle Groups:</p>
-                <select name="workoutsFilter" id="workoutsFilter" title="workoutsFilter">
-                    <option value="">All Muscle Groups</option>
-                    <?php
-                    // Fetch distinct muscle groups from the database
-                    $muscle_groups = array_unique(array_column($workouts, 'workout_muscle_group'));
-                    foreach ($muscle_groups as $muscle_group) {
-                        echo "<option value='$muscle_group'>$muscle_group</option>";
-                    }
-                    ?>
-                </select>
+                <form action="" method="post">
+                    <select name="muscle_group" id="muscle_group" title="muscle_group">
+                        <option value="">All Muscle Groups</option>
+                        <?php
+                        // Fetch distinct muscle groups from the database
+                        $muscle_groups = array_unique(array_column($workouts, 'workout_muscle_group'));
+                        foreach ($muscle_groups as $muscle_group) {
+                            echo "<option value='$muscle_group'>$muscle_group</option>";
+                        }
+                        ?>
+                    </select>
+                    <input type='submit' value='Filter'>
+                </form>
             </div>
             <div class="workoutsInnerDiv">
                 <?php
                     // Filter workouts based on selected category and muscle group
                     $filtered_workouts = $workouts; // Initialize with all workouts
+                    if (isset($_POST['muscle_group']) && $_POST['muscle_group'] !== '') {
+                        $muscle_group_filter = $_POST['muscle_group'];
+                        $filtered_workouts = array_filter($filtered_workouts, function ($workout) use ($muscle_group_filter) {
+                            return $workout['workout_muscle_group'] === $muscle_group_filter;
+                        });
+                    }
+
                     foreach ($filtered_workouts as $workout) {
                         $tempString = "<button class='workout' id='workout".$workout['workout_id']."' onclick='hideButton(this, \"".$workout['workout_name']."\", ".$workout['workout_id'].")'>"
                             .$workout['workout_name']
