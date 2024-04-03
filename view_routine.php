@@ -18,11 +18,14 @@ if (isset($_GET['routine_id'])) {
 
     // Get routine details
     $routine = getRoutineById($routineId);
+    $author = getUserById($routine['user_id']);
     if (!$routine) {
         // Handle routine not found error
         echo "Routine not found.";
         exit();
     }
+
+    $routineWorkouts = getRoutineWorkouts($routineId);
 } else {
     // Redirect to some error page or handle the error accordingly
     echo "Routine ID is not provided.";
@@ -33,143 +36,321 @@ if (isset($_GET['routine_id'])) {
 $workouts = getAllWorkouts();
 
 // Handle adding a new workout to the routine
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveWorkout'])) {
-    // Retrieve form data
-    $selectedWorkoutId = $_POST['workoutId'];
-    $newWorkoutReps = $_POST['reps'];
-    $newWorkoutVolume = $_POST['volume'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
+    $workoutTitles = [];
+    $workoutTables = [];
 
-    // Validate form data (you can add more validation as needed)
-
-    // Add the new workout to the routine
-    $success = addWorkoutToRoutine($routineId, $userId, $selectedWorkoutId, $newWorkoutReps, $newWorkoutVolume);
-
-    if ($success) {
-        // Refresh the page to reflect the changes
-        header("Location: view_routine.php?routine_id=$routineId");
-        exit();
-    } else {
-        echo "Failed to add the workout to the routine.";
-        // Handle the error accordingly
+    $tempIndex = 0;
+    while(isset($_POST['title'.$tempIndex])) {
+        $workoutTitles[] = $_POST['title'.$tempIndex];
+        $tempIndex++;
     }
-}
 
-// Handle deleting a workout from the routine
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteWorkout'])) {
-    // Retrieve workout ID to be deleted
-    $deleteWorkoutId = $_POST['deleteWorkoutId'];
-
-    // Delete the workout from the routine
-    $success = deleteWorkoutFromRoutine($routineId, $deleteWorkoutId);
-
-    if ($success) {
-        // Refresh the page to reflect the changes
-        header("Location: view_routine.php?routine_id=$routineId");
-        exit();
-    } else {
-        echo "Failed to delete the workout from the routine.";
-        // Handle the error accordingly
+    for($i = 0; $i<count($workoutTitles); $i++) {
+        $tableData = [];
+        $tempIndex = 1;
+        while(isset($_POST['table'.$i.'reps'.$tempIndex])) {
+            $dataReps = $_POST['table'.$i.'reps'.$tempIndex];
+            $dataVolumes = $_POST['table'.$i.'volume'.$tempIndex];
+            $tableData[] = [$dataReps, $dataVolumes];
+            $tempIndex++;
+        }
+        $workoutTables[] = $tableData;
     }
+
+    for($i = 0; $i<count($workoutTitles); $i++) {
+        $routineWorkouts = array(
+            'num' => count($workoutTables[$i]),
+            'routine_id' => $routineId,
+            'user_id' => $userId,
+            'workout_id' => 0,
+        );
+        deleteExtraRWRows($routineWorkouts);
+        
+        for($j = 0; $j<count($workoutTables[$i]); $j++) {
+            if(!isset($_GET['routine_id'])) {
+    
+            }
+    
+            $routineWorkouts = array(
+                'num' => ($j + 1),
+                'routine_id' => $routineId,
+                'user_id' => $userId,
+                'workout_id' => 0,
+                'reps' => $workoutTables[$i][$j][0],
+                'volume' => $workoutTables[$i][$j][1]
+            );
+            saveRoutineWorkouts($routineWorkouts);
+        }
+    }
+    $routineWorkouts = array(
+        'routine_id' => $routineId,
+        'user_id' => $userId,
+        'workout_id' => 0,
+    );
+    deleteExtraRWTables($routineWorkouts);
+
+    $routineWorkouts = getRoutineWorkouts($routineId);
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Routine</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-bottom: 20px;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>View Routine</title>
+        <style>
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-bottom: 20px;
+            }
 
-        th, td {
-            border: 1px solid #dddddd;
-            padding: 8px;
-            text-align: left;
-        }
+            th, td {
+                border: 1px solid #dddddd;
+                padding: 8px;
+                text-align: left;
+            }
 
-        th {
-            background-color: #f2f2f2;
-        }
+            th {
+                background-color: #f2f2f2;
+            }
 
-        form.inline {
-            display: inline;
-        }
-    </style>
-</head>
-<body>
-    <h2>View Routine</h2>
-    <h3>Routine Name: <?php echo $routine['routine_name']; ?></h3>
-    
-    <h4>Workouts:</h4>
-    <table>
-    <?php
-    // Array to keep track of workouts that have been displayed
-    $displayedWorkouts = [];
+            form.inline {
+                display: inline;
+            }
+        </style>
+        <script>
+            var conts = [];
+            var tables = [];
+            var tableIndex = 0;
+            var tableTitles = [];
+            var reps = [];
+            var volumes = [];
 
-    // Loop through each workout in the routine
-    foreach ($routine['workouts'] as $workout) {
-        // Check if the workout has been displayed already
-        if (!in_array($workout['workout_id'], $displayedWorkouts)) {
-            // If not displayed, display the workout and create a new table
-            echo "<tr>";
-            echo "<td>{$workout['workout_name']}</td>";
-            echo "</tr>";
-            echo "<tr>";
-            echo "<th>Set</th>";
-            echo "<th>Reps</th>";
-            echo "<th>Volume</th>";
-            echo "<th>Action</th>";
-            echo "</tr>";
-            // Add the workout ID to the displayed workouts array
-            $displayedWorkouts[] = $workout['workout_id'];
-        }
+            //Initialization
+            var routineWorkouts = [<?php
+                $filteredGroup = [];
+                foreach($routineWorkouts as $workout) {
+                    $filteredGroup[$workout['workout_id']][] = $workout;
+                }
 
-        // Display each set for the current workout
-        echo "<tr>";
-        echo "<td>{}</td>";
-        echo "<td>{$workout['reps']}</td>";
-        echo "<td>{$workout['volume']}</td>";
-        echo "<td>
-                <form class='inline' action='' method='post'>
-                    <input type='hidden' name='deleteWorkoutId' value='{$workout['workout_id']}'>
-                    <button type='submit' name='deleteWorkout'>Delete</button>
-                </form>
-              </td>";
-        echo "</tr>";
-    }
-    ?>
-</table>
+                for($i = 0; $i<sizeof($filteredGroup); $i++) {
+                    if($i>0) {echo ", ";}
+                    echo "[";
+                    for($j = 0; $j<sizeof($filteredGroup[$i]); $j++) {
+                        if($j>0) {echo ", ";}
+                        echo "[";
+                        echo $filteredGroup[$i][$j]['reps'].", ".$filteredGroup[$i][$j]['volume'];
+                        echo "]";
+                    }
+                    echo "]";
+                }
+            ?>];
+            function initialize() {
+                for(var i = 0; i<routineWorkouts.length; i++) {
+                    newWorkOut();
+                    var tempTable = document.getElementById("table" + i);
+                    for(var j = 0; j<routineWorkouts[i].length; j++) {
+                        if(j>0) {addRow(tempTable);}
+                        var tempInput = document.getElementById("table" + i + "reps" + (j+1));
+                        tempInput.value = routineWorkouts[i][j][0];
+                        var tempInput = document.getElementById("table" + i + "volume" + (j+1));
+                        tempInput.value = routineWorkouts[i][j][1];
+                    }
+                }
+            }
 
-    
-    <!-- Form to add a new workout -->
-    <h4>Add Workout:</h4>
-    <form id="addWorkoutForm" action="" method="post">
-    <!-- Remove unnecessary hidden input -->
-    
-    <label for="workoutId">Select Workout:</label>
-    <select name="workoutId" id="workoutId" required>
-        <?php foreach ($workouts as $workout) { ?>
-            <option value="<?php echo $workout['workout_id']; ?>"><?php echo $workout['workout_id'] . ' - ' . $workout['workout_name']; ?></option>
-        <?php } ?>
-    </select><br><br>
-    
-    <!-- Initial value of set column is 1 -->
-    <input type="hidden" name="sets" value="1">
-    
-    <label for="reps">Reps:</label>
-    <input type="number" name="reps" id="reps" required><br><br>
-    
-    <label for="volume">Volume:</label>
-    <input type="number" name="volume" id="volume" required><br><br>
-    
-    <button type="submit" name="saveWorkout">Save Workout</button>
-</form>
-    
-    <a href="index.php">Go Back to Dashboard</a>
-</body>
+            function newWorkOut() {
+                var targCont = document.getElementById("workOuts");
+                //Title, Table, and Button Container
+                var tempCont = document.createElement("div");
+                tempCont.style.border = "1px solid black";
+                targCont.appendChild(tempCont);
+                conts.push(tempCont);
+
+                //Title
+                var tempPrgph = document.createElement("p");
+                var tempBold = document.createElement("b");
+                tempBold.textContent = "Workout";
+                //Hidden input(For form)
+                var tempTitle = document.createElement("input");
+                tempTitle.type = "hidden";
+                tempTitle.value = "Workout";
+                tempTitle.name = "title" + tableIndex;
+                tableTitles.push(tempTitle);
+                tempPrgph.appendChild(tempBold);
+                tempPrgph.appendChild(tempTitle);
+                tempCont.appendChild(tempPrgph);
+
+                //Table
+                var tempTable = document.createElement("table");
+                tempTable.id = "table" + tableIndex;
+                targCont.appendChild(tempTable);
+                for(var i = 0; i<2; i++) {
+                    //Table Row
+                    var tempRow = tempTable.insertRow();
+                    for(var j = 0; j<4; j++) {
+                        //Row Cell
+                        var tempCell = tempRow.insertCell();
+                        tempCell.id = "table" + tableIndex + "r" + i + "c" + j;
+
+                        //Column Name
+                        if(i==0&&j==1) {tempCell.textContent = "Reps";}
+                        if(i==0&&j==2) {tempCell.textContent = "Volume";}
+
+                        //Numbering Column
+                        if(i==1&&j==0) {tempCell.textContent = "1";}
+
+                        //Input Columns
+                        if(i==1&&(j==1||j==2)) {
+                            var tempInput = document.createElement("input");
+                            tempInput.type = "number";
+                            tempCell.appendChild(tempInput);
+                            if(j==1) {
+                                reps.push([tempInput]); 
+                                tempInput.name = "table" + tableIndex + "reps" + i;
+                                tempInput.id = "table" + tableIndex + "reps" + i;
+                            }
+                            if(j==2) {
+                                volumes.push([tempInput]); 
+                                tempInput.name = "table" + tableIndex + "volume" + i;
+                                tempInput.id = "table" + tableIndex + "volume" + i;
+                            }
+                        }
+                    }
+                }
+                tempCont.appendChild(tempTable);
+                tables.push(tempTable);
+                tableIndex++;
+
+                //Button for adding more rows
+                var tempButton = document.createElement("Button");
+                tempButton.type ="button";
+                tempButton.textContent = "Add Row";
+                tempButton.addEventListener('click', (function(var1) {return function() {addRow(var1)};})(tempTable));
+                tempCont.appendChild(tempButton);
+
+                //Button for deleting the table
+                var tempButton = document.createElement("Button");
+                tempButton.type ="button";
+                tempButton.textContent = "Delete Table";
+                tempButton.addEventListener('click', (function(var1) {return function() {deleteTable(var1)};})(tempCont));
+                tempCont.appendChild(tempButton);
+            }
+
+            function addRow(targTable) {
+                //Adds new row
+                var tempRow = targTable.insertRow();
+                var tempIndex = tables.indexOf(targTable);
+                for(var i = 0; i<4; i++) {
+                    //Adds cells/columns to the row
+                    var tempCell = tempRow.insertCell();
+                    tempCell.id = "table" + tempIndex + "r" + (targTable.rows.length - 1) + "c" + i;
+
+                    //Display the row's number
+                    if(i==0) {tempCell.textContent = targTable.rows.length - 1;}
+
+                    //Adds input fields
+                    if(i==1||i==2) {
+                        var tempInput = document.createElement("input");
+                        tempInput.type = "number";
+                        tempCell.appendChild(tempInput);
+                        if(i==1) {
+                            reps[tempIndex].push(tempInput); 
+                            tempInput.name = "table" + tempIndex + "reps" + (targTable.rows.length - 1);
+                            tempInput.id = "table" + tempIndex + "reps" + (targTable.rows.length - 1);
+                        }
+                        if(i==2) {
+                            volumes[tempIndex].push(tempInput); 
+                            tempInput.name = "table" + tempIndex + "volume" + (targTable.rows.length - 1);
+                            tempInput.id = "table" + tempIndex + "volume" + (targTable.rows.length - 1);
+                        }
+                    }
+                    //Adds delete row button
+                    if(i==3) {
+                        var tempButton = document.createElement("button");
+                        tempButton.type = "button";
+                        tempButton.textContent = "X";
+                        tempButton.addEventListener('click', (function(var1, var2) {return function() {deleteRow(var1, var2)};})(tempRow, targTable));
+                        tempCell.append(tempButton);
+                    }
+                }
+            }
+
+            function deleteRow(targRow, targTable) {
+                //Identifies the row index of target row
+                var rowIndex = -1;
+                for(var i = 0; i<targTable.rows.length; i++) {
+                    if(targTable.rows[i]===targRow) {rowIndex = i-1; break;}
+                }
+                var tempIndex = tables.indexOf(targTable);
+                reps[tempIndex].splice(rowIndex, 1);
+                volumes[tempIndex].splice(rowIndex, 1);
+                targRow.remove();
+
+                for(var i = 0; i<targTable.rows.length; i++) {
+                    if(i!=0) {
+                        //Rewrites the numbering column
+                        targTable.rows[i].cells[0].textContent = i;
+                        //Rewrites input ids and names
+                        reps[tempIndex][i-1].name = "table" + tempIndex + "reps" + i;
+                        reps[tempIndex][i-1].id = "table" + tempIndex + "reps" + i;
+                        volumes[tempIndex][i-1].name = "table" + tempIndex + "volume" + i;
+                        volumes[tempIndex][i-1].id = "table" + tempIndex + "volume" + i;
+                    }
+                    for(var j = 0; j<4; j++) {
+                        //Rewrites cell ids
+                        targTable.rows[i].cells[j].id = "table" + tempIndex + "r" + i + "c" + j;
+                    }
+                }
+            }
+
+            function deleteTable(targCont) {
+                var tempIndex = conts.indexOf(targCont);
+                if(tempIndex!==-1) {
+                    targCont.remove();
+                    conts.splice(tempIndex, 1);
+                    titles.splice(tempIndex, 1);
+                    tables.splice(tempIndex,1);
+                    reps.splice(tempIndex, 1);
+                    volumes.splice(tempIndex, 1);
+                    tableIndex--;
+
+                    //Rewrites table and title indexes
+                    for(var i = 0; i<tables.length; i++) {
+                        var targTable = tables[i];
+                        targTable.id = "table" + i;
+                        tableTitles[i].name = "title" + i;
+                        for(var j = 0; j<targTable.rows.length; j++) {
+                            for(var k = 0; k<4; k++) {
+                                targTable.rows[j].cells[k].id = "table" + i + "r" + j + "c" + k;
+                            }
+                        }
+                    }
+                }
+            }
+
+            window.onload = initialize;
+        </script>
+    </head>
+    <body>
+        <h3>Routine Name: <?php echo $routine['routine_name']; ?></h3>
+        <h4>By: <?php echo $author['firstname'] . " " . $author['lastname']; ?></h4>
+        <h4>Description: <?php echo $routine['routine_description']; ?></h4>
+        
+        <h4>Workouts:</h4>
+        <form action="" method="post">
+            <div id="workOuts">
+            </div>
+            <?php
+                if($userId==$routine['user_id']) {
+                    echo "<button type=\"button\" onclick=\"newWorkOut()\">Add</button>";
+                    echo "<input type=\"submit\" value=\"Save\" name=\"submit\">";
+                }
+            ?>
+        </form>
+        <a href="index.php">Go Back to Dashboard</a>
+    </body>
 </html>
