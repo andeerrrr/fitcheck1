@@ -12,8 +12,12 @@ if (!isset($_SESSION['login'])) {
 // Get user's profile information
 $user_id = $_SESSION['user_id'];
 $user = getUserById($user_id);
-$profile_picture = $user['profile_picture'];
-$completedWorkouts = getCompletedWorkouts($user_id);
+$target = $user;
+if(isset($_GET['profile'])) {
+    $target = getUserById($_GET['profile']);
+}
+$profile_picture = $target['profile_picture'];
+$completedWorkouts = getCompletedWorkouts($target['user_id']);
 ?>
 
 <!DOCTYPE html>
@@ -85,6 +89,11 @@ $completedWorkouts = getCompletedWorkouts($user_id);
             <!-- Display profile picture -->
             <div class="profile-picture">
                 <img src="<?php echo $profile_picture; ?>" alt="Profile Picture">
+                <?php
+                    if($user_id!=$target['user_id']) {
+                        echo "<button>Add Friend</button>";
+                    }
+                ?>
             </div>
             <div>
                 <p><?php echo $user['firstname']." ".$user['lastname'] ?></p>

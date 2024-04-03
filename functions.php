@@ -74,15 +74,6 @@ function getUserById($user_id) {
     return $user;
 }
 
-function getUserProfile($user_id) {
-    global $conn;
-    $stmt = $conn->prepare("SELECT profile_picture FROM users WHERE user_id = ?");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result()->fetch_assoc();
-    return $result;
-}
-
 function getCompletedWorkouts($userId) {
     global $conn;
 
@@ -229,5 +220,69 @@ function deleteUser($userId) {
         // Handle error if deletion fails
         return false;
     }
+}
+
+function getAllUsersExcept($userId) {
+    global $conn;
+
+    $stmt = $conn->prepare("SELECT `user_id`, `firstname`, `lastname` FROM `users` WHERE `user_id`!=?");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+function savePost($post) {
+    global $conn;
+
+    if(!isset($post['id'])) {
+        $stmt = $conn->prepare("INSERT INTO `posts` (`user_id`, `content`) VALUES (?,?)");
+        $stmt->bind_param("is", $post['user_id'], $post['content']);
+        $success = $stmt->execute();
+
+        $stmt = $conn->prepare("SELECT `user_id` FROM `posts` WHERE `user_id`=? AND `content`=? GROUP BY `created_at` ASC");
+        $stmt->bind_param("is", $post['user_id'], $post['content']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->close();
+        return $result->fetch_column();
+    } else {
+        $stmt = $conn->prepare("UPDATE `posts` SET `content`=? WHERE `id`=?");
+        $stmt->bind_param("si", $post['content'], $post['id']);
+        $success = $stmt->execute();
+        $stmt->close();
+        return $post['id'];
+    }
+}
+
+function getComments($postId) {
+    global $conn;
+    
+    $stmt = $conn->prepare("SELECT `id`, `user_id`, `content` FROM `comments` WHERE `post_id`=?");
+    $stmt->bind_param("i", $postId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+function getPost($postId) {
+    global $conn;
+    
+    $stmt = $conn->prepare("SELECT `user_id`, `content` FROM `posts` WHERE `post_id`=?");
+    $stmt->bind_param("i", $postId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+    return $result->fetch_assoc();
+}
+
+function saveComment($comment) {
+    global $conn;
+
+    $stmt = $conn->prepare("INSERT INTO `comments` (`user_id`, `content`) VALUES (?,?)");
+    $stmt->bind_param("is", $comment['user_id'], $comment['content']);
+    $success = $stmt->execute();
+    $stmt->close();
 }
 ?>

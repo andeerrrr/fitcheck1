@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 03, 2024 at 01:12 PM
+-- Generation Time: Apr 03, 2024 at 08:16 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,36 +20,47 @@ SET time_zone = "+00:00";
 --
 -- Database: `fitcheck`
 --
+CREATE DATABASE IF NOT EXISTS `fitcheck` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `fitcheck`;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `routine_workouts`
+-- Table structure for table `comments`
 --
 
-CREATE TABLE `routine_workouts` (
+CREATE TABLE `comments` (
   `id` int(11) NOT NULL,
-  `routine_id` int(11) NOT NULL,
-  `workout_id` int(11) NOT NULL,
-  `rows` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `user_id` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL,
+  `content` text NOT NULL,
+  `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `workout_data`
+-- Table structure for table `friends`
 --
 
-CREATE TABLE `workout_data` (
+CREATE TABLE `friends` (
   `id` int(11) NOT NULL,
-  `num` int(11) NOT NULL,
-  `routine_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `workout_id` int(11) NOT NULL,
-  `reps` int(11) NOT NULL,
-  `volume` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `target_id` int(11) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `posts`
+--
+
+CREATE TABLE `posts` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `content` text NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -57,15 +68,21 @@ CREATE TABLE `workout_data` (
 --
 
 --
--- Indexes for table `routine_workouts`
+-- Indexes for table `comments`
 --
-ALTER TABLE `routine_workouts`
+ALTER TABLE `comments`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `workout_data`
+-- Indexes for table `friends`
 --
-ALTER TABLE `workout_data`
+ALTER TABLE `friends`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `posts`
+--
+ALTER TABLE `posts`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -73,15 +90,21 @@ ALTER TABLE `workout_data`
 --
 
 --
--- AUTO_INCREMENT for table `routine_workouts`
+-- AUTO_INCREMENT for table `comments`
 --
-ALTER TABLE `routine_workouts`
+ALTER TABLE `comments`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `workout_data`
+-- AUTO_INCREMENT for table `friends`
 --
-ALTER TABLE `workout_data`
+ALTER TABLE `friends`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `posts`
+--
+ALTER TABLE `posts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
