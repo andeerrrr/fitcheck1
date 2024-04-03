@@ -31,6 +31,7 @@ $routines = getAllRoutinesForUser($_SESSION['user_id']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Workouts and Routines</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href ="workouts.css">
 
     <!-- Include jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -76,40 +77,80 @@ $routines = getAllRoutinesForUser($_SESSION['user_id']);
 
 </head>
 <body>
-    <h2>Workouts</h2>
-    <h1><?php echo $_SESSION['firstname']; ?></h1>
-    <div class="sidebar">
-        <div class="logo">
-            <img src="logo.png" alt="Site Logo">
-            <h1>Site Name</h1>
-        </div>
-        <ul class="menu">
-            <li><a href="home.php">Home</a></li>
-            <li><a href="index.php">Routines</a></li>
-            <li><a href="exercises.php">Exercises</a></li>
-            <li><a href="profile.php">Profile</a></li>
-        </ul>
-        <div class="footer">
-            <img src="<?php echo $profile_picture_url; ?>" alt="Profile Picture">
-            <a href="logout.php"><img src="images/logout.png" alt="Logout"></a>
-        </div>
-    </div>
-    <!-- Filter form for workouts -->
-    <form action="" method="post">
-        <label for="muscle_group">Filter by Muscle Group:</label>
-        <select name="muscle_group" id="muscle_group">
-            <option value="">All Muscle Groups</option>
-            <?php
-            // Fetch distinct muscle groups from the database
-            $muscle_groups = array_unique(array_column($workouts, 'workout_muscle_group'));
-            foreach ($muscle_groups as $muscle_group) {
-                echo "<option value='$muscle_group'>$muscle_group</option>";
-            }
-            ?>
-        </select>
-        <button type="submit">Filter</button>
-    </form>
 
+<nav id="navbar">
+        <header>
+            <span>
+                <img id="logo" src="images/assets/logo.png">
+            </span>
+        </header>
+
+        <div class="menu">
+            <ul>
+                <li>
+                    <a href="#">
+                        <div class="hover"></div>
+                        <img src="images/assets/home-icon.png">
+                        <span>Feed</span>
+                    </a>
+                </li><br>
+                <li>
+                    <a href="#">
+                        <div class="hover" id="workout"></div>
+                        <img src="images/assets/workout-icon.png">
+                        <span>Workout</span>
+                    </a>
+                </li><br>
+                <li>
+                    <a href="#">
+                        <div class="active" id="exercises"></div>
+                        <img src="images/assets/exercise-icon.png">
+                        <span><a href="">Exercises</a></span>
+                    </a>
+                </li><br>
+                <li>
+                    <a href="#">
+                        <div class="hover"></div>
+                        <img src="images/assets/profile-icon.png">
+                        <span><a href="profile.php">Profile</a></span>
+                    </a>
+                </li><br>
+            </ul>
+        </div>
+
+        <div id="bottom">
+            <br><br><br>
+            <ul>
+                <li>
+                    <a href="#">
+                        <div class="hover"></div>
+                        <img src="images/assets/logout-icon.png">
+                        <span>Logout</span>
+                    </a>
+                </li><br>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="wheader">
+        <h2>Workouts</h2>
+        <h1><?php echo $_SESSION['firstname']; ?></h1>
+    <!-- Filter form for workouts -->
+        <form action="" method="post">
+            <label for="muscle_group">Filter by Muscle Group:</label>
+            <select name="muscle_group" id="muscle_group">
+                <option value="">All Muscle Groups</option>
+                <?php
+                // Fetch distinct muscle groups from the database
+                $muscle_groups = array_unique(array_column($workouts, 'workout_muscle_group'));
+                foreach ($muscle_groups as $muscle_group) {
+                    echo "<option value='$muscle_group'>$muscle_group</option>";
+                }
+                ?>
+            </select>
+            <button type="submit">Filter</button>
+        </form>
+    </div>
     <form action="" method="post">
         <ul>
             <?php
@@ -132,7 +173,6 @@ $routines = getAllRoutinesForUser($_SESSION['user_id']);
                 echo "<div class='workout'>";
                 echo "<img src='{$workout['image_url']}' alt='{$workout['workout_name']}'>";
                 echo "<h3>{$workout['workout_name']}</h3>";
-                echo "<p>{$workout['workout_description']}</p>";
                 echo "<span class='muscle-group'>{$workout['workout_muscle_group']}</span>";
                 echo "<span class='category'>{$workout['workout_category']}</span>";
                 // Add button with data attribute to store workout details
@@ -188,4 +228,5 @@ $routines = getAllRoutinesForUser($_SESSION['user_id']);
 
 
 </body>
+</html>
 </html>
