@@ -96,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>View Routine</title>
+        <link rel="stylesheet" href="nav_bar.css">
         <style>
             table {
                 border-collapse: collapse;
@@ -379,6 +380,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
         </script>
     </head>
     <body>
+        <nav id="navbar">
+            <header>
+                <span>
+                    <img id="logo" src="images/assets/logo.png">
+                </span>
+            </header>
+
+            <div class="menu">
+                <ul>
+                    <li>
+                        <a href="#">
+                            <div class="hover"></div>
+                            <img src="images/assets/home-icon.png">
+                            <span>Feed</span>
+                        </a>
+                    </li><br>
+                    <li>
+                        <a href="#">
+                            <div class="hover" id="workout"></div>
+                            <img src="images/assets/workout-icon.png">
+                            <span>Workout</span>
+                        </a>
+                    </li><br>
+                    <li>
+                        <a href="#">
+                            <div class="hover" id="exercises"></div>
+                            <img src="images/assets/exercise-icon.png">
+                            <span>Exercises</span>
+                        </a>
+                    </li><br>
+                    <li>
+                        <a href="#">
+                            <div class="active"></div>
+                            <img src="images/assets/profile-icon.png">
+                            <span>Profile</span>
+                        </a>
+                    </li><br>
+                </ul>
+            </div>
+
+            <div id="bottom">
+                <br><br><br>
+                <ul>
+                    <li>
+                        <a href="#">
+                            <div class="hover"></div>
+                            <img src="images/assets/logout-icon.png">
+                            <span>Logout</span>
+                        </a>
+                    </li><br>
+                </ul>
+            </div>
+        </nav>
         <div class="routineDiv">
             <h3>Routine Name: <?php echo $routine['routine_name']; ?></h3>
             <h4>By: <?php echo $author['firstname'] . " " . $author['lastname']; ?></h4>
@@ -434,5 +488,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
                     ?>
             </div>
         </div>
+
+        <!-- dropdown part-->
+        
     </body>
 </html>
