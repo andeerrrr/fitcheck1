@@ -35,62 +35,46 @@ if (isset($_GET['routine_id'])) {
 // Fetch available workouts from the database
 $workouts = getAllWorkouts();
 
-// Handle adding a new workout to the routine
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
-    $workoutTitles = [];
-    $workoutTables = [];
-
+// Save routine with its assigned workouts
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveRoutine'])) {
     $tempIndex = 0;
     while(isset($_POST['title'.$tempIndex])) {
-        $workoutTitles[] = $_POST['title'.$tempIndex];
+        $workoutId = $_POST['title'.$tempIndex];
+        $tempRow = 0;
+        while(isset($_POST['table'.$tempIndex.'reps'.$tempRow])) {
+            $tempRow++;
+        }
+        $routineWorkout = array(
+            'routine_id' => $routineId,
+            'workout_id' => $workoutId,
+            'rows' => $tempRow
+        );
+        saveRoutineWorkout($routineWorkout);
         $tempIndex++;
     }
+    $routineWorkouts = getRoutineWorkouts($routineId);
+}
 
-    for($i = 0; $i<count($workoutTitles); $i++) {
-        $tableData = [];
-        $tempIndex = 1;
-        while(isset($_POST['table'.$i.'reps'.$tempIndex])) {
-            $dataReps = $_POST['table'.$i.'reps'.$tempIndex];
-            $dataVolumes = $_POST['table'.$i.'volume'.$tempIndex];
-            $tableData[] = [$dataReps, $dataVolumes];
-            $tempIndex++;
-        }
-        $workoutTables[] = $tableData;
-    }
-
-    for($i = 0; $i<count($workoutTitles); $i++) {
-        $routineWorkouts = array(
-            'num' => count($workoutTables[$i]),
-            'routine_id' => $routineId,
-            'user_id' => $userId,
-            'workout_id' => 0,
-        );
-        deleteExtraRWRows($routineWorkouts);
-        
-        for($j = 0; $j<count($workoutTables[$i]); $j++) {
-            if(!isset($_GET['routine_id'])) {
-    
-            }
-    
-            $routineWorkouts = array(
-                'num' => ($j + 1),
+//Save data on the workouts
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
+    $tempIndex = 0;
+    while(isset($_POST['title'.$tempIndex])) {
+        $workoutId = $_POST['title'.$tempIndex];
+        $tempRow = 0;
+        while(isset($_POST['table'.$tempIndex.'reps'.$tempRow])) {
+            $workoutData = array(
+                'num' => $tempRow,
                 'routine_id' => $routineId,
                 'user_id' => $userId,
-                'workout_id' => 0,
-                'reps' => $workoutTables[$i][$j][0],
-                'volume' => $workoutTables[$i][$j][1]
+                'workout_id' => $workoutId,
+                'reps' => $_POST['table'.$tempIndex.'reps'.$tempRow],
+                'volume' => $_POST['table'.$tempIndex.'volume'.$tempRow]
             );
-            saveRoutineWorkouts($routineWorkouts);
-        }
+            saveWorkoutData($workoutData);
+            $tempRow++;
+        }   
+        $tempIndex++;
     }
-    $routineWorkouts = array(
-        'routine_id' => $routineId,
-        'user_id' => $userId,
-        'workout_id' => 0,
-    );
-    deleteExtraRWTables($routineWorkouts);
-
-    $routineWorkouts = getRoutineWorkouts($routineId);
 }
 ?>
 
@@ -131,33 +115,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 
             //Initialization
             var routineWorkouts = [<?php
-                $filteredGroup = [];
-                foreach($routineWorkouts as $workout) {
-                    $filteredGroup[$workout['workout_id']][] = $workout;
-                }
-
-                for($i = 0; $i<sizeof($filteredGroup); $i++) {
+                for($i = 0; $i<sizeof($routineWorkouts); $i++) {
                     if($i>0) {echo ", ";}
-                    echo "[";
-                    for($j = 0; $j<sizeof($filteredGroup[$i]); $j++) {
-                        if($j>0) {echo ", ";}
-                        echo "[";
-                        echo $filteredGroup[$i][$j]['reps'].", ".$filteredGroup[$i][$j]['volume'];
-                        echo "]";
-                    }
-                    echo "]";
+                    $workout = getWorkout($routineWorkouts[$i]['workout_id']);
+                    $tempString = "['"
+                        .$workout['workout_name']
+                        ."', "
+                        .$routineWorkouts[$i]['workout_id']
+                        .", "
+                        .$routineWorkouts[$i]['rows']
+                        ."]";
+                    echo $tempString;
                 }
             ?>];
             function initialize() {
                 for(var i = 0; i<routineWorkouts.length; i++) {
-                    newWorkOut();
+                    newWorkout(routineWorkouts[i][0], routineWorkouts[i][1]);
                     var tempTable = document.getElementById("table" + i);
-                    for(var j = 0; j<routineWorkouts[i].length; j++) {
-                        if(j>0) {addRow(tempTable);}
-                        var tempInput = document.getElementById("table" + i + "reps" + (j+1));
-                        tempInput.value = routineWorkouts[i][j][0];
-                        var tempInput = document.getElementById("table" + i + "volume" + (j+1));
-                        tempInput.value = routineWorkouts[i][j][1];
+                    for(var j = 0; j<routineWorkouts[i][2].length; j++) {
+                        addRow(tempTable);
                     }
                 }
             }
@@ -179,6 +155,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 tempTitle.type = "hidden";
                 tempTitle.value = workoutId;
                 tempTitle.name = "title" + tableIndex;
+                var tempTitle = document.createElement("input");
+                tempTitle.type = "hidden";
+                tempTitle.value = 1;
+                tempTitle.name = "title" + tableIndex + "rows";
+                tempTitle.id = "title" + tableIndex + "rows";
                 tableTitles.push(tempTitle);
                 tempPrgph.appendChild(tempBold);
                 tempPrgph.appendChild(tempTitle);
@@ -353,9 +334,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             <form action="" method="post">
                 <div id="workOuts">
                 </div>
+                    <input type="submit" value="Save Data" name="saveData">
                 <?php
                     if($userId==$routine['user_id']) {
-                        echo "<input type='submit' value='Save' name='submit'>";
+                        echo "<input type='submit' value='Save Routine' name='saveRoutine'>";
                     }
                 ?>
             </form>

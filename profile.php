@@ -13,7 +13,7 @@ if (!isset($_SESSION['login'])) {
 $user_id = $_SESSION['user_id'];
 $user_info = getUserProfile($user_id);
 $profile_picture = $user_info['profile_picture'];
-$user_workouts = getUserWorkouts($user_id);
+//$user_workouts = getUserWorkouts($user_id);
 ?>
 
 <!DOCTYPE html>
