@@ -37,20 +37,33 @@ $workouts = getAllWorkouts();
 
 // Save routine with its assigned workouts
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveRoutine'])) {
+    $routineWorkouts = getRoutineWorkouts($routineId);
+    for($i = 0; $i<sizeof($routineWorkouts); $i++) {
+        unset($routineWorkouts[$i]['rows']);
+    }
+
+    $existing = [];
     $tempIndex = 0;
     while(isset($_POST['title'.$tempIndex])) {
         $workoutId = $_POST['title'.$tempIndex];
-        $tempRow = 0;
-        while(isset($_POST['table'.$tempIndex.'reps'.$tempRow])) {
-            $tempRow++;
-        }
+        $tempRows = $_POST['table'.$tempIndex.'rows'];
         $routineWorkout = array(
             'routine_id' => $routineId,
             'workout_id' => $workoutId,
-            'rows' => $tempRow
+            'rows' => $tempRows
         );
         saveRoutineWorkout($routineWorkout);
+        deleteExcessRows($routineWorkout, $userId);
+        unset($routineWorkout['rows']);
+        $existing[] = $routineWorkout;
         $tempIndex++;
+    }
+    if(!isset($_POST['title'.$tempIndex])) {deleteAllRows($routineId, $userId);}
+
+    foreach($routineWorkouts as $routineWorkout) {
+        if (!in_array($routineWorkout, $existing)) {
+            deleteRoutineWorkout($routineWorkout, $userId);
+        }
     }
     $routineWorkouts = getRoutineWorkouts($routineId);
 }
@@ -60,18 +73,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
     $tempIndex = 0;
     while(isset($_POST['title'.$tempIndex])) {
         $workoutId = $_POST['title'.$tempIndex];
-        $tempRow = 0;
-        while(isset($_POST['table'.$tempIndex.'reps'.$tempRow])) {
+        $tempRows = $_POST['table'.$tempIndex.'rows'];
+        for($i = 0; $i<$tempRows; $i++) {
             $workoutData = array(
-                'num' => $tempRow,
+                'num' => $tempRows,
                 'routine_id' => $routineId,
                 'user_id' => $userId,
                 'workout_id' => $workoutId,
-                'reps' => $_POST['table'.$tempIndex.'reps'.$tempRow],
-                'volume' => $_POST['table'.$tempIndex.'volume'.$tempRow]
+                'reps' => $_POST['table'.$tempIndex.'reps'.$tempRows],
+                'volume' => $_POST['table'.$tempIndex.'volume'.$tempRows]
             );
             saveWorkoutData($workoutData);
-            $tempRow++;
         }   
         $tempIndex++;
     }
@@ -110,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
             var tables = [];
             var tableIndex = 0;
             var tableTitles = [];
+            var tableRows = [];
             var reps = [];
             var volumes = [];
 
@@ -128,12 +141,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
                     echo $tempString;
                 }
             ?>];
+            var workoutData = [<?php
+                for($i = 0; $i<sizeof($routineWorkouts); $i++) {
+                    if($i>0) {echo ", ";}
+                    $workoutData = getWorkoutData($routineId, $userId, $routineWorkouts[$i]['workout_id']);
+                    echo "[";
+                    if (sizeof($workoutData)>0) {
+                        for($j = 0; $j<sizeof($workoutData); $j++) {
+                            if($j>0) {echo ", ";}
+                            $tempString = "["
+                                .$workoutData[$j]['reps']
+                                .", "
+                                .$workoutData[$j]['volume']
+                                ."]";
+                            echo $tempString;
+                        }
+                    } else {
+                        echo "[]";
+                    }
+                    echo "]";
+                }
+            ?>];
+
             function initialize() {
                 for(var i = 0; i<routineWorkouts.length; i++) {
                     newWorkout(routineWorkouts[i][0], routineWorkouts[i][1]);
+                    var tempButton = document.getElementById("workout" + routineWorkouts[i][1]);
+                    tempButton.style.display = "none";
                     var tempTable = document.getElementById("table" + i);
-                    for(var j = 0; j<routineWorkouts[i][2].length; j++) {
-                        addRow(tempTable);
+                    for(var j = 0; j<routineWorkouts[i][2]; j++) {
+                        if(j>0) {addRow(tempTable);}
+                        var tempInput = document.getElementById("table" + i + "reps" + (j + 1));
+                        var tempInteger = (workoutData[i][j][0] == null) ? 0 : workoutData[i][j][0];
+                        tempInput.value = tempInteger;
+                        var tempInput = document.getElementById("table" + i + "volume" + (j + 1));
+                        var tempInteger = (workoutData[i][j][1] == null) ? 0 : workoutData[i][j][1];
+                        tempInput.value = tempInteger;
                     }
                 }
             }
@@ -155,14 +198,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
                 tempTitle.type = "hidden";
                 tempTitle.value = workoutId;
                 tempTitle.name = "title" + tableIndex;
-                var tempTitle = document.createElement("input");
-                tempTitle.type = "hidden";
-                tempTitle.value = 1;
-                tempTitle.name = "title" + tableIndex + "rows";
-                tempTitle.id = "title" + tableIndex + "rows";
                 tableTitles.push(tempTitle);
+                var tempRows = document.createElement("input");
+                tempRows.type = "hidden";
+                tempRows.value = 1;
+                tempRows.name = "table" + tableIndex + "rows";
+                tempRows.id = "table" + tableIndex + "rows";
+                tableRows.push(tempRows);
                 tempPrgph.appendChild(tempBold);
                 tempPrgph.appendChild(tempTitle);
+                tempPrgph.appendChild(tempRows);
                 tempCont.appendChild(tempPrgph);
 
                 //Table
@@ -188,6 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
                         if(i==1&&(j==1||j==2)) {
                             var tempInput = document.createElement("input");
                             tempInput.type = "number";
+                            tempInput.value = 0;
                             tempCell.appendChild(tempInput);
                             if(j==1) {
                                 reps.push([tempInput]); 
@@ -229,6 +275,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
                     //Adds cells/columns to the row
                     var tempCell = tempRow.insertCell();
                     tempCell.id = "table" + tempIndex + "r" + (targTable.rows.length - 1) + "c" + i;
+                    var tempRows = document.getElementById("table" + tempIndex + "rows");
+                    tempRows.value = targTable.rows.length - 1;
 
                     //Display the row's number
                     if(i==0) {tempCell.textContent = targTable.rows.length - 1;}
@@ -237,6 +285,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
                     if(i==1||i==2) {
                         var tempInput = document.createElement("input");
                         tempInput.type = "number";
+                        tempInput.value = 0;
                         tempCell.appendChild(tempInput);
                         if(i==1) {
                             reps[tempIndex].push(tempInput); 
@@ -271,6 +320,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
                 volumes[tempIndex].splice(rowIndex, 1);
                 targRow.remove();
 
+                var tempRows = document.getElementById("table" + tempIndex + "rows");
+                tempRows.value = targTable.rows.length - 1;
                 for(var i = 0; i<targTable.rows.length; i++) {
                     if(i!=0) {
                         //Rewrites the numbering column
@@ -296,7 +347,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
                 if(tempIndex!==-1) {
                     targCont.remove();
                     conts.splice(tempIndex, 1);
-                    titles.splice(tempIndex, 1);
+                    tableTitles.splice(tempIndex, 1);
+                    tableRows.splice(tempIndex, 1);
                     tables.splice(tempIndex,1);
                     reps.splice(tempIndex, 1);
                     volumes.splice(tempIndex, 1);
@@ -307,6 +359,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['saveData'])) {
                         var targTable = tables[i];
                         targTable.id = "table" + i;
                         tableTitles[i].name = "title" + i;
+                        tableRows[i].name = "table" + i + "rows";
+                        tableRows[i].id = "table" + i + "rows";
                         for(var j = 0; j<targTable.rows.length; j++) {
                             for(var k = 0; k<4; k++) {
                                 targTable.rows[j].cells[k].id = "table" + i + "r" + j + "c" + k;

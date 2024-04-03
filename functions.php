@@ -132,7 +132,7 @@ function saveWorkoutData($workoutData) {
 function getRoutineWorkouts($routineId) {
     global $conn;
 
-    $stmt = $conn->prepare("SELECT * FROM `routine_workouts` WHERE `routine_id`=?");
+    $stmt = $conn->prepare("SELECT `routine_id`, `workout_id`, `rows` FROM `routine_workouts` WHERE `routine_id`=?");
     $stmt->bind_param("i", $routineId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -148,21 +148,46 @@ function getWorkout($workoutId) {
     return $result->fetch_assoc();
 }
 
-function deleteExtraRWRows($routineWorkouts) {
+function getWorkoutData($routineId, $userId, $workoutId) {
     global $conn;
 
-    $stmt = $conn->prepare("DELETE FROM routine_workouts WHERE `num`>? AND `routine_id`=? AND `user_id`=? AND `workout_id`=?");
-    $stmt->bind_param("iiii", $routineWorkouts['num'], $routineWorkouts['routine_id'], $routineWorkouts['user_id'], $routineWorkouts['workout_id']);
+    $stmt = $conn->prepare("SELECT `num`, `workout_id`, `reps`, `volume` FROM `workout_data` WHERE `routine_id`=? AND `user_id`=? AND `workout_id`=? GROUP BY `num` ASC");
+    $stmt->bind_param("iii", $routineId, $userId, $workoutId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+function deleteRoutineWorkout($routineWorkout, $userId) {
+    global $conn;
+
+    $stmt = $conn->prepare("DELETE FROM `routine_workouts` WHERE `routine_id`=? AND `workout_id`=?");
+    $stmt->bind_param("ii", $routineWorkout['routine_id'], $routineWorkout['workout_id']);
+    $success = $stmt->execute();
+    
+    $stmt = $conn->prepare("DELETE FROM `workout_data` WHERE `routine_id`=? AND `workout_id`=? AND `user_id`=?");
+    $stmt->bind_param("iii", $routineWorkout['routine_id'], $routineWorkout['workout_id'], $userId);
+    $success = $stmt->execute();
+
+    $stmt->close();
+    return $success;
+}
+
+function deleteExcessRows($routineWorkout, $userId) {
+    global $conn;
+
+    $stmt = $conn->prepare("DELETE FROM `workout_data` WHERE `routine_id`=? AND `workout_id`=? AND `user_id`=? AND `num`>?");
+    $stmt->bind_param("iiii", $routineWorkout['routine_id'], $routineWorkout['workout_id'], $userId, $routineWorkout['rows']);
     $success = $stmt->execute();
     $stmt->close();
     return $success;
 }
 
-function deleteExtraRWTables($routineWorkouts) {
+function deleteAllRows($routineId, $userId) {
     global $conn;
 
-    $stmt = $conn->prepare("DELETE FROM routine_workouts WHERE `routine_id`=? AND `user_id`=? AND `workout_id`>?");
-    $stmt->bind_param("iii", $routineWorkouts['routine_id'], $routineWorkouts['user_id'], $routineWorkouts['workout_id']);
+    $stmt = $conn->prepare("DELETE FROM `workout_data` WHERE `routine_id`=? AND `user_id`=?");
+    $stmt->bind_param("ii", $routineWorkout['routine_id'], $userId);
     $success = $stmt->execute();
     $stmt->close();
     return $success;
