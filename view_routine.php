@@ -336,21 +336,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         </script>
     </head>
     <body>
-        <h3>Routine Name: <?php echo $routine['routine_name']; ?></h3>
-        <h4>By: <?php echo $author['firstname'] . " " . $author['lastname']; ?></h4>
-        <h4>Description: <?php echo $routine['routine_description']; ?></h4>
-        
-        <h4>Workouts:</h4>
-        <form action="" method="post">
-            <div id="workOuts">
-            </div>
-            <?php
-                if($userId==$routine['user_id']) {
-                    echo "<button type=\"button\" onclick=\"newWorkOut()\">Add</button>";
-                    echo "<input type=\"submit\" value=\"Save\" name=\"submit\">";
-                }
-            ?>
-        </form>
-        <a href="index.php">Go Back to Dashboard</a>
+        <div class="routineDiv">
+            <h3>Routine Name: <?php echo $routine['routine_name']; ?></h3>
+            <h4>By: <?php echo $author['firstname'] . " " . $author['lastname']; ?></h4>
+            <h4>Description: <?php echo $routine['routine_description']; ?></h4>
+            
+            <h4>Workouts:</h4>
+            <form action="" method="post">
+                <div id="workOuts">
+                </div>
+                <?php
+                    if($userId==$routine['user_id']) {
+                        echo "<button type=\"button\" onclick=\"newWorkOut()\">Add</button>";
+                        echo "<input type=\"submit\" value=\"Save\" name=\"submit\">";
+                    }
+                ?>
+            </form>
+            <a href="index.php">Go Back to Dashboard</a>
+        </div>
+        <div class="workoutsDiv">
+
+        </div>
     </body>
 </html>

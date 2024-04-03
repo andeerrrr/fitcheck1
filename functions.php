@@ -80,7 +80,7 @@ function getRoutineById($routineId) {
     global $conn;
     
     // Fetch routine details
-    $stmt = $conn->prepare("SELECT routine_id, routine_name FROM routines WHERE routine_id = ?");
+    $stmt = $conn->prepare("SELECT * FROM routines WHERE routine_id = ?");
     $stmt->bind_param("i", $routineId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -99,6 +99,18 @@ function getRoutineById($routineId) {
     $routine['workouts'] = $workouts;
     
     return $routine;
+}
+
+function getUserById($user_id) {
+    global $conn;
+
+    $stmt = $conn->prepare("SELECT * FROM `users` WHERE `user_id`=?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+
+    return $user;
 }
 
 function getUserProfile($user_id) {
@@ -122,37 +134,54 @@ function getUserWorkouts($user_id) {
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function addWorkoutToRoutine($routineId, $userId, $workoutId, $reps, $volume) {
+function saveRoutineWorkouts($routineWorkouts) {
     global $conn;
+    
+    $stmt = $conn->prepare("SELECT * FROM `routine_workouts` WHERE `num`=? AND `routine_id`=? AND `user_id`=? AND `workout_id`=?");
+    $stmt->bind_param("iiii", $routineWorkouts['num'], $routineWorkouts['routine_id'], $routineWorkouts['user_id'], $routineWorkouts['workout_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    // Prepare the SQL statement
-    $stmt = $conn->prepare("INSERT INTO routine_workouts (routine_id, user_id, workout_id, reps, volume) VALUES (?, ?, ?, ?, ?)");
-
-    // Bind parameters and execute the statement
-    $stmt->bind_param("iiiii", $routineId, $userId, $workoutId, $reps, $volume);
-    $success = $stmt->execute();
-
-    // Close the statement
+    if($result->num_rows==0) {
+        $stmt = $conn->prepare("INSERT INTO `routine_workouts` (`num`, `routine_id`, `user_id`, `workout_id`, `reps`, `volume`) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("iiiiii", $routineWorkouts['num'], $routineWorkouts['routine_id'], $routineWorkouts['user_id'], $routineWorkouts['workout_id'], $routineWorkouts['reps'], $routineWorkouts['volume']);
+        $success = $stmt->execute();
+    } else {
+        $stmt = $conn->prepare("UPDATE `routine_workouts` SET `reps`=?, `volume`=? WHERE `num`=? AND `routine_id`=? AND `user_id`=? AND `workout_id`=?");
+        $stmt->bind_param("iiiiii", $routineWorkouts['reps'], $routineWorkouts['volume'], $routineWorkouts['num'], $routineWorkouts['routine_id'], $routineWorkouts['user_id'], $routineWorkouts['workout_id']);
+        $success = $stmt->execute();
+    }
     $stmt->close();
-
     return $success;
 }
 
-
-function deleteWorkoutFromRoutine($routineId, $workoutId) {
+function getRoutineWorkouts($routineId) {
     global $conn;
 
-    // Prepare the SQL statement
-    $stmt = $conn->prepare("DELETE FROM routine_workouts WHERE routine_id = ? AND workout_id = ?");
+    $stmt = $conn->prepare("SELECT * FROM `routine_workouts` WHERE `routine_id`=?");
+    $stmt->bind_param("i", $routineId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
 
-    // Bind parameters and execute the statement
-    $stmt->bind_param("ii", $routineId, $workoutId);
+function deleteExtraRWRows($routineWorkouts) {
+    global $conn;
+
+    $stmt = $conn->prepare("DELETE FROM routine_workouts WHERE `num`>? AND `routine_id`=? AND `user_id`=? AND `workout_id`=?");
+    $stmt->bind_param("iiii", $routineWorkouts['num'], $routineWorkouts['routine_id'], $routineWorkouts['user_id'], $routineWorkouts['workout_id']);
     $success = $stmt->execute();
-
-    // Close the statement
     $stmt->close();
-
     return $success;
 }
 
+function deleteExtraRWTables($routineWorkouts) {
+    global $conn;
+
+    $stmt = $conn->prepare("DELETE FROM routine_workouts WHERE `routine_id`=? AND `user_id`=? AND `workout_id`>?");
+    $stmt->bind_param("iii", $routineWorkouts['routine_id'], $routineWorkouts['user_id'], $routineWorkouts['workout_id']);
+    $success = $stmt->execute();
+    $stmt->close();
+    return $success;
+}
 ?>
