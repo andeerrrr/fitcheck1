@@ -192,4 +192,40 @@ function deleteAllRows($routineId, $userId) {
     $stmt->close();
     return $success;
 }
+
+function deleteUser($userId) {
+    global $conn;
+
+    // Delete associated records in routines table
+    $sql_delete_routines = "DELETE FROM routines WHERE user_id = ?";
+    $stmt_delete_routines = $conn->prepare($sql_delete_routines);
+    $stmt_delete_routines->bind_param("i", $userId);
+    
+    if (!$stmt_delete_routines->execute()) {
+        // Handle error if deletion fails
+        return false;
+    }
+
+    // Delete associated records in routine_workouts table
+    $sql_delete_workouts = "DELETE FROM routine_workouts WHERE user_id = ?";
+    $stmt_delete_workouts = $conn->prepare($sql_delete_workouts);
+    $stmt_delete_workouts->bind_param("i", $userId);
+    
+    if (!$stmt_delete_workouts->execute()) {
+        // Handle error if deletion fails
+        return false;
+    }
+
+    // Delete the user from the users table
+    $sql_delete_user = "DELETE FROM users WHERE user_id = ?";
+    $stmt_delete_user = $conn->prepare($sql_delete_user);
+    $stmt_delete_user->bind_param("i", $userId);
+
+    if ($stmt_delete_user->execute()) {
+        return true; // Return true if deletion was successful
+    } else {
+        // Handle error if deletion fails
+        return false;
+    }
+}
 ?>
