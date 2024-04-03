@@ -13,7 +13,8 @@ CREATE TABLE users (
 
 -- Insert sample values into Users table
 INSERT INTO users (firstname, lastname, username, pword, sex, dob) VALUES
-('andre', 'tanalgo', 'admin','123','male','1990-01-01');
+('andre', 'tanalgo', 'admin','123','male','1990-01-01'),
+('Alquinn John', 'Undar','Plmhjuein','timetrialist1170','male,','2003,02,26');
 
 -- Create Workouts table with an additional column for image URLs
     CREATE TABLE workouts (
