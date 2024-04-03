@@ -38,17 +38,6 @@ $routines = getAllRoutinesForUser($_SESSION['user_id']);
 
     <!-- Filter form for workouts -->
     <form action="" method="post">
-        <label for="category">Filter by Category:</label>
-        <select name="category" id="category">
-            <option value="">All Categories</option>
-            <?php
-            // Fetch distinct workout categories from the database
-            $categories = array_unique(array_column($workouts, 'workout_category'));
-            foreach ($categories as $category) {
-                echo "<option value='$category'>$category</option>";
-            }
-            ?>
-        </select>
         <label for="muscle_group">Filter by Muscle Group:</label>
         <select name="muscle_group" id="muscle_group">
             <option value="">All Muscle Groups</option>
