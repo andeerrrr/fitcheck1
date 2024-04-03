@@ -26,22 +26,77 @@ $profile_picture = $user_info['profile_picture'];
 </head>
 <body>
 
-    <h2>User Profile</h2>
-    
-    <!-- Display profile picture -->
-    <div class="profile-picture">
-        <img src="<?php echo $profile_picture; ?>" alt="Profile Picture">
+    <nav id="navbar">
+        <header>
+            <span>
+                <img id="logo" src="Assets/logo.png">
+            </span>
+        </header>
+
+        <div class="menu">
+            <ul>
+                <li>
+                    <a href="#">
+                        <div class="hover"></div>
+                        <img src="Assets/home-icon.png">
+                        <span>Feed</span>
+                    </a>
+                </li><br>
+                <li>
+                    <a href="#">
+                        <div class="hover" id="workout"></div>
+                        <img src="Assets/workout-icon.png">
+                        <span>Workout</span>
+                    </a>
+                </li><br>
+                <li>
+                    <a href="#">
+                        <div class="hover" id="exercises"></div>
+                        <img src="Assets/exercise-icon.png">
+                        <span>Exercises</span>
+                    </a>
+                </li><br>
+                <li>
+                    <a href="#">
+                        <div class="active"></div>
+                        <img src="Assets/profile-icon.png">
+                        <span>Profile</span>
+                    </a>
+                </li><br>
+            </ul>
+        </div>
+
+        <div id="bottom">
+            <br><br><br>
+            <ul>
+                <li>
+                    <a href="#">
+                        <div class="hover"></div>
+                        <img src="Assets/logout-icon.png">
+                        <span>Logout</span>
+                    </a>
+                </li><br>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="prof_section">
+        <h2>User Profile</h2>
+        
+            <!-- Display profile picture -->
+            <div class="profile-picture">
+                <img src="<?php echo $profile_picture; ?>" alt="Profile Picture">
+            </div>
+
+            <!-- Display user's workouts -->
+            <h3>Workouts Done:</h3>
+            <ul>
+                <?php foreach ($user_workouts as $workout) : ?>
+                    <li><?php echo $workout['workout_name']; ?></li>
+                <?php endforeach; ?>
+            </ul>
+
+        <a href="index.php">Go Back to Dashboard</a>
     </div>
-
-    <!-- Display user's workouts -->
-    <h3>Workouts Done:</h3>
-    <ul>
-        <?php foreach ($user_workouts as $workout) : ?>
-            <li><?php echo $workout['workout_name']; ?></li>
-        <?php endforeach; ?>
-    </ul>
-
-    <a href="index.php">Go Back to Dashboard</a>
-
 </body>
 </html>

@@ -16,14 +16,14 @@ INSERT INTO users (firstname, lastname, username, pword, sex, dob) VALUES
 ('andre', 'tanalgo', 'admin','123','male','1990-01-01');
 
 -- Create Workouts table with an additional column for image URLs
-CREATE TABLE workouts (
-    workout_id INT PRIMARY KEY,
-    workout_name VARCHAR(255) NOT NULL,
-    workout_muscle_group VARCHAR(255) NOT NULL,
-    workout_category VARCHAR(255) NOT NULL,
-    workout_description TEXT,
-    image_url VARCHAR(255)
-);
+    CREATE TABLE workouts (
+        workout_id INT PRIMARY KEY,
+        workout_name VARCHAR(255) NOT NULL,
+        workout_muscle_group VARCHAR(255) NOT NULL,
+        workout_category VARCHAR(255) NOT NULL,
+        workout_description TEXT,
+        image_url VARCHAR(255)
+    );
 
 -- Insert sample values into Workouts table with image URLs
 INSERT INTO workouts (workout_id, workout_name, workout_muscle_group, workout_category, workout_description, image_url)
@@ -69,6 +69,51 @@ VALUES
 (39, 'Tricep Kickbacks', 'Triceps', 'Upper Body', 'Isolate triceps. Hold dumbbells, hinge at the waist, and extend arms straight back behind the body.', 'images/tricep_kickbacks.jpg'),
 (40, 'Step-Ups', 'Legs', 'Lower Body', 'Dynamic exercise targeting quads, hamstrings, and glutes. Step onto a raised platform with one foot, then step down and repeat with the other foot.', 'images/step_ups.jpg');
 
+INSERT INTO workouts (workout_id, workout_name, workout_muscle_group, workout_category, workout_description, image_url)
+VALUES 
+(41, 'Push-ups', 'Chest, Triceps', 'Upper Body', 'Strengthen chest and triceps. Start in plank position, lower body until chest nearly touches the ground, and push back up.', 'images/pushups.jpg'),
+(42, 'Dips', 'Triceps, Chest', 'Upper Body', 'Work triceps and chest. Use parallel bars, lower body by bending elbows, and then push back up.', 'images/dips.jpg'),
+(43, 'Dumbbell Bench Press', 'Chest, Shoulders, Triceps', 'Upper Body', 'Compound exercise targeting chest, shoulders, and triceps. Lie on bench, hold dumbbells, and press them upward.', 'images/dumbbell_bench_press.jpg'),
+(44, 'Pull-ups', 'Back, Biceps', 'Upper Body', 'Target upper back and biceps. Hang from bar with palms facing away, pull body upward, and lower it back down.', 'images/pullups.jpg'),
+(45, 'Chin-ups', 'Biceps, Back', 'Upper Body', 'Engage biceps and upper back. Hang from bar with palms facing toward you, pull body upward, and lower it back down.', 'images/chinups.jpg'),
+(46, 'Barbell Rows', 'Back, Biceps', 'Upper Body', 'Work mid-back. Bend at hips, grasp barbell, and pull it toward lower chest.', 'images/barbell_rows.jpg'),
+(47, 'Hammer Curls', 'Biceps, Forearms', 'Upper Body', 'Work biceps and forearms. Hold dumbbells with palms facing body, curl weights toward shoulders, and lower them back down.', 'images/hammer_curls.jpg'),
+(48, 'Tricep Extensions', 'Triceps', 'Upper Body', 'Isolate triceps. Hold dumbbell overhead with both hands, lower it behind head, and extend arms back up.', 'images/tricep_extensions.jpg'),
+(49, 'Shoulder Press', 'Shoulders, Triceps', 'Upper Body', 'Target shoulders and triceps. Press dumbbells or barbell overhead, and lower them back down.', 'images/shoulder_press.jpg'),
+(50, 'Bicep Curls', 'Biceps', 'Upper Body', 'Isolate biceps. Hold dumbbell in each hand, keep elbows close to body, and curl weights toward shoulders.', 'images/bicep_curls.jpg'),
+
+(51, 'Squats', 'Quadriceps, Glutes, Hamstrings', 'Lower Body', 'Fundamental lower-body exercise targeting quads, hamstrings, and glutes. Stand with feet shoulder-width apart, lower body by bending knees, and push back up.', 'images/squats.jpg'),
+(52, 'Deadlifts', 'Hamstrings, Glutes, Lower Back', 'Lower Body', 'Full-body exercise working posterior chain, including lower back, glutes, and hamstrings. Stand with barbell, bend at hips and knees, grasp bar, and lift by extending hips and knees.', 'images/deadlift.jpg'),
+(53, 'Leg Press', 'Quadriceps, Hamstrings, Glutes', 'Lower Body', 'Target quads, hamstrings, and glutes. Sit on leg press machine, push platform away with feet, and then return to starting position.', 'images/leg_press.jpg'),
+(54, 'Lunges', 'Quadriceps, Hamstrings, Glutes', 'Lower Body', 'Dynamic lower-body exercise. Step forward with one foot, lower body until both knees are bent, and return to starting position.', 'images/lunges.jpg'),
+(55, 'Calf Raises', 'Calves', 'Lower Body', 'Isolate calf muscles. Stand on raised surface, lift heels by pushing through toes, and lower them back down.', 'images/calf_raises.jpg'),
+(56, 'Romanian Deadlifts', 'Hamstrings, Lower Back', 'Lower Body', 'Emphasize hamstrings and lower back. Hold barbell in front of thighs, hinge at hips, and lower barbell as far as flexibility allows.', 'images/romanian_deadlifts.jpg'),
+(57, 'Leg Extensions', 'Quadriceps', 'Lower Body', 'Isolate quadriceps. Sit on leg extension machine, extend knees to lift weights, and then lower them back down.', 'images/leg_extensions.jpg'),
+(58, 'Hamstring Curls', 'Hamstrings', 'Lower Body', 'Work hamstrings. Lie face down on hamstring curl machine, curl legs toward glutes, and then lower them back down.', 'images/hamstring_curls.jpg'),
+(59, 'Step-Ups', 'Quadriceps, Glutes', 'Lower Body', 'Dynamic lower-body exercise. Step onto a raised platform with one foot, then step down and repeat with the other foot.', 'images/step_ups.jpg'),
+(60, 'Glute Bridges', 'Glutes, Hamstrings', 'Lower Body', 'Target glutes and hamstrings. Lie on back, bend knees, lift hips toward ceiling, and squeeze glutes at the top.', 'images/glute_bridges.jpg'),
+
+(61, 'Push Press', 'Shoulders, Triceps', 'Upper Body', 'Compound exercise targeting shoulders and triceps. Press barbell overhead with legs assisting the movement.', 'images/push_press.jpg'),
+(62, 'Bent Over Rows', 'Back, Biceps', 'Upper Body', 'Target mid-back. Bend at hips, hold dumbbells, and pull elbows back, squeezing shoulder blades together.', 'images/bent_over_rows.jpg'),
+(63, 'Incline Bench Press', 'Chest, Shoulders, Triceps', 'Upper Body', 'Target upper chest, shoulders, and triceps. Lie on incline bench, unrack bar, lower it to upper chest, and push it back up.', 'images/incline_bench_press.jpg'),
+(64, 'Leg Curls', 'Hamstrings', 'Lower Body', 'Isolate hamstrings. Lie face down on leg curl machine, curl heels toward glutes, and then lower them back down.', 'images/leg_curls.jpg'),
+(65, 'Front Raises', 'Shoulders', 'Upper Body', 'Target front delts. Hold dumbbells, lift arms forward to shoulder height, and lower them back down.', 'images/front_raises.jpg'),
+(66, 'Decline Bench Press', 'Chest, Shoulders, Triceps', 'Upper Body', 'Target lower chest, shoulders, and triceps. Lie on decline bench, unrack bar, lower it to lower chest, and push it back up.', 'images/decline_bench_press.jpg'),
+(67, 'Reverse Lunges', 'Quadriceps, Hamstrings, Glutes', 'Lower Body', 'Dynamic lower-body exercise. Step backward with one foot, lower body until both knees are bent, and return to starting position.', 'images/reverse_lunges.jpg'),
+(68, 'Side Lateral Raises', 'Shoulders', 'Upper Body', 'Isolate side delts. Hold dumbbells at sides, raise them laterally to shoulder height, and lower them back down.', 'images/side_lateral_raises.jpg'),
+(69, 'Hack Squats', 'Quadriceps, Glutes', 'Lower Body', 'Target quads and glutes. Stand with back against machine, lower body by bending knees, and push back up.', 'images/hack_squats.jpg'),
+(70, 'Skull Crushers', 'Triceps', 'Upper Body', 'Focus on triceps. Lie on bench, hold an EZ curl bar, lower it toward forehead, and extend arms back up.', 'images/skull_crushers.jpg'),
+
+(71, 'Plank Rows', 'Back, Core', 'Upper Body', 'Strengthen back and core. Start in plank position, row dumbbell to side, alternating arms.', 'images/plank_rows.jpg'),
+(72, 'Side Plank Dips', 'Obliques, Core', 'Upper Body', 'Engage obliques and core. Start in side plank position, lower hips toward floor, and raise them back up.', 'images/side_plank_dips.jpg'),
+(73, 'Leg Press Calf Raises', 'Calves', 'Lower Body', 'Isolate calf muscles. Sit on leg press machine, place balls of feet on bottom of platform, and perform calf raises.', 'images/leg_press_calf_raises.jpg'),
+(74, 'Arnold Press', 'Shoulders', 'Upper Body', 'Work shoulders and triceps. Sit with dumbbells at shoulder height, rotate palms outward as pressing overhead, then rotate palms inward as lowering.', 'images/arnold_press.jpg'),
+(75, 'Preacher Curls', 'Biceps', 'Upper Body', 'Isolate biceps. Sit at preacher curl bench, curl barbell or dumbbells toward shoulders, and lower them back down.', 'images/preacher_curls.jpg'),
+(76, 'Tricep Rope Pushdowns', 'Triceps', 'Upper Body', 'Isolate triceps. Attach rope to cable machine, push it down until arms are fully extended, and return to starting position.', 'images/tricep_rope_pushdowns.jpg'),
+(77, 'Reverse Flyes', 'Shoulders, Upper Back', 'Upper Body', 'Target rear delts and upper back. Bend at hips, hold dumbbells, and lift arms laterally to shoulder height.', 'images/reverse_flyes.jpg'),
+(78, 'Glute-Ham Raises', 'Hamstrings, Glutes', 'Lower Body', 'Strengthen hamstrings and glutes. Use glute-ham developer machine to lower body forward, then raise it back up.', 'images/glute_ham_raises.jpg'),
+(79, 'Russian Dumbbell Twists', 'Obliques', 'Upper Body', 'Engage obliques. Sit on floor, lean back slightly, and rotate torso to touch ground on each side while holding a dumbbell.', 'images/russian_dumbbell_twists.jpg'),
+(80, 'Hack Squats', 'Quadriceps, Glutes', 'Lower Body', 'Target quads and glutes. Stand with back against machine, lower body by bending knees, and push back up.', 'images/hack_squats.jpg');
 
 -- Create UserRoutines table for the many-to-many relationship
 CREATE TABLE routines (
