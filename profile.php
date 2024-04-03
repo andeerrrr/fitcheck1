@@ -11,9 +11,9 @@ if (!isset($_SESSION['login'])) {
 
 // Get user's profile information
 $user_id = $_SESSION['user_id'];
-$user_info = getUserProfile($user_id);
-$profile_picture = $user_info['profile_picture'];
-//$user_workouts = getUserWorkouts($user_id);
+$user = getUserById($user_id);
+$profile_picture = $user['profile_picture'];
+$completedWorkouts = getCompletedWorkouts($user_id);
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +25,7 @@ $profile_picture = $user_info['profile_picture'];
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
+    <!--
     <nav id="navbar">
         <header>
             <span>
@@ -79,6 +79,7 @@ $profile_picture = $user_info['profile_picture'];
             </ul>
         </div>
     </nav>
+    -->
 
     <div class="prof_section">
         <h2>User Profile</h2>
@@ -87,11 +88,19 @@ $profile_picture = $user_info['profile_picture'];
             <div class="profile-picture">
                 <img src="<?php echo $profile_picture; ?>" alt="Profile Picture">
             </div>
+            <div>
+                <p><?php echo $user['firstname']." ".$user['lastname'] ?></p>
+                <div class="personalDetails">
+                    <p><b>Birthday: </b><?php echo $user['dob']; ?></p>
+                    <p><b>Gender: </b><?php echo $user['sex']; ?></p>
+                </div>
+            </div>
 
             <!-- Display user's workouts -->
+            <br>
             <h3>Workouts Done:</h3>
             <ul>
-                <?php foreach ($user_workouts as $workout) : ?>
+                <?php foreach ($completedWorkouts as $workout) : ?>
                     <li><?php echo $workout['workout_name']; ?></li>
                 <?php endforeach; ?>
             </ul>

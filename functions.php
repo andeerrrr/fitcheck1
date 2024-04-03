@@ -83,8 +83,10 @@ function getUserProfile($user_id) {
     return $result;
 }
 
-function getUserWorkouts($user_id) {
+function getCompletedWorkouts($userId) {
     global $conn;
+
+    return 0;
 }
 
 function saveRoutineWorkout($routineWorkout) {
