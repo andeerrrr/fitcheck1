@@ -14,6 +14,17 @@ function getAllRoutines() {
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
+function getWorkoutsInRoutine($routineId) {
+    global $conn;
+    $stmt = $conn->prepare("SELECT workouts.* FROM workouts
+        INNER JOIN routine_workouts ON workouts.workout_id = routine_workouts.workout_id
+        WHERE routine_workouts.routine_id = ?");
+    $stmt->bind_param("i", $routineId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
 function createRoutine($selectedWorkouts) {
     global $conn;
 
@@ -28,6 +39,13 @@ function createRoutine($selectedWorkouts) {
     if (!$routineId) {
         // Handle error, perhaps log it
         return;
+    }
+
+    // Associate selected workouts with the routine
+    foreach ($selectedWorkouts as $workoutId) {
+        $stmt = $conn->prepare("INSERT INTO routine_workouts (routine_id, workout_id) VALUES (?, ?)");
+        $stmt->bind_param("ii", $routineId, $workoutId);
+        $stmt->execute();
     }
 }
 
@@ -49,29 +67,38 @@ function getAllRoutinesForUser($user_id) {
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
+function showStatistics() {
+    global $conn;
+    $result = $conn->query("SELECT workout_name, routine_workouts.volume as pr
+                            FROM workouts
+                            JOIN routine_workouts ON workouts.workout_id = routine_workouts.workout_id
+                            ORDER BY pr DESC LIMIT 5");
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
 function getRoutineById($routineId) {
     global $conn;
     
     // Fetch routine details
-    $stmt = $conn->prepare("SELECT * FROM routines WHERE routine_id = ?");
+    $stmt = $conn->prepare("SELECT routine_id, routine_name FROM routines WHERE routine_id = ?");
     $stmt->bind_param("i", $routineId);
     $stmt->execute();
     $result = $stmt->get_result();
     $routine = $result->fetch_assoc();
     
-    return $routine;
-}
-
-function getUserById($user_id) {
-    global $conn;
-
-    $stmt = $conn->prepare("SELECT * FROM `users` WHERE `user_id`=?");
-    $stmt->bind_param("i", $user_id);
+    // Fetch workout details for the routine
+    $stmt = $conn->prepare("SELECT rw.*, w.workout_name FROM routine_workouts rw
+                            INNER JOIN workouts w ON rw.workout_id = w.workout_id
+                            WHERE rw.routine_id = ?");
+    $stmt->bind_param("i", $routineId);
     $stmt->execute();
     $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-
-    return $user;
+    $workouts = $result->fetch_all(MYSQLI_ASSOC);
+    
+    // Add workouts to the routine array
+    $routine['workouts'] = $workouts;
+    
+    return $routine;
 }
 
 function getUserProfile($user_id) {
@@ -85,111 +112,85 @@ function getUserProfile($user_id) {
 
 function getUserWorkouts($user_id) {
     global $conn;
-}
-
-function saveRoutineWorkout($routineWorkout) {
-    global $conn;
-    
-    $stmt = $conn->prepare("SELECT * FROM `routine_workouts` WHERE `routine_id`=? AND `workout_id`=?");
-    $stmt->bind_param("ii", $routineWorkout['routine_id'], $routineWorkout['workout_id']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if($result->num_rows==0) {
-        $stmt = $conn->prepare("INSERT INTO `routine_workouts` (`routine_id`, `workout_id`, `rows`) VALUES (?, ?, ?)");
-        $stmt->bind_param("iii", $routineWorkout['routine_id'], $routineWorkout['workout_id'], $routineWorkout['rows']);
-        $success = $stmt->execute();
-    } else {
-        $stmt = $conn->prepare("UPDATE `routine_workouts` SET `rows`=? WHERE `routine_id`=? AND `workout_id`=?");
-        $stmt->bind_param("iii", $routineWorkout['rows'], $routineWorkout['routine_id'], $routineWorkout['workout_id']);
-        $success = $stmt->execute();
-    }
-    $stmt->close();
-    return $success;
-}
-
-function saveWorkoutData($workoutData) {
-    global $conn;
-
-    $stmt = $conn->prepare("SELECT * FROM `workout_data` WHERE `num`=? AND `routine_id`=? AND `user_id`=? AND `workout_id`=?");
-    $stmt->bind_param("iiii", $workoutData['num'], $workoutData['routine_id'], $workoutData['user_id'], $workoutData['workout_id']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if($result->num_rows==0) {
-        $stmt = $conn->prepare("INSERT INTO `workout_data` (`num`, `routine_id`, `user_id`, `workout_id`, `reps`, `volume`) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("iiiiii", $workoutData['num'], $workoutData['routine_id'], $workoutData['user_id'], $workoutData['workout_id'], $workoutData['reps'], $workoutData['volume']);
-        $success = $stmt->execute();
-    } else {
-        $stmt = $conn->prepare("UPDATE `workout_data` SET `reps`=?, `volume`=? WHERE `num`=? AND `routine_id`=? AND `user_id`=? AND `workout_id`=?");
-        $stmt->bind_param("iiiiii", $workoutData['reps'], $workoutData['volume'], $workoutData['num'], $workoutData['routine_id'], $workoutData['user_id'], $workoutData['workout_id']);
-        $success = $stmt->execute();
-    }
-    $stmt->close();
-    return $success;
-}
-
-function getRoutineWorkouts($routineId) {
-    global $conn;
-
-    $stmt = $conn->prepare("SELECT `routine_id`, `workout_id`, `rows` FROM `routine_workouts` WHERE `routine_id`=?");
-    $stmt->bind_param("i", $routineId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    return $result->fetch_all(MYSQLI_ASSOC);
-}
-function getWorkout($workoutId) {
-    global $conn;
-
-    $stmt = $conn->prepare("SELECT * FROM `workouts` WHERE `workout_id`=?");
-    $stmt->bind_param("i", $workoutId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    return $result->fetch_assoc();
-}
-
-function getWorkoutData($routineId, $userId, $workoutId) {
-    global $conn;
-
-    $stmt = $conn->prepare("SELECT `num`, `workout_id`, `reps`, `volume` FROM `workout_data` WHERE `routine_id`=? AND `user_id`=? AND `workout_id`=? GROUP BY `num` ASC");
-    $stmt->bind_param("iii", $routineId, $userId, $workoutId);
+    $stmt = $conn->prepare("SELECT workouts.workout_name 
+                           FROM routine_workouts 
+                           INNER JOIN workouts ON routine_workouts.workout_id = workouts.workout_id
+                           WHERE routine_workouts.user_id = ?");
+    $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function deleteRoutineWorkout($routineWorkout, $userId) {
+function addWorkoutToRoutine($routineId, $userId, $workoutId, $reps, $volume) {
     global $conn;
 
-    $stmt = $conn->prepare("DELETE FROM `routine_workouts` WHERE `routine_id`=? AND `workout_id`=?");
-    $stmt->bind_param("ii", $routineWorkout['routine_id'], $routineWorkout['workout_id']);
+    // Prepare the SQL statement
+    $stmt = $conn->prepare("INSERT INTO routine_workouts (routine_id, user_id, workout_id, reps, volume) VALUES (?, ?, ?, ?, ?)");
+
+    // Bind parameters and execute the statement
+    $stmt->bind_param("iiiii", $routineId, $userId, $workoutId, $reps, $volume);
     $success = $stmt->execute();
+
+    // Close the statement
+    $stmt->close();
+
+    return $success;
+}
+
+
+function deleteWorkoutFromRoutine($routineId, $workoutId) {
+    global $conn;
+
+    // Prepare the SQL statement
+    $stmt = $conn->prepare("DELETE FROM routine_workouts WHERE routine_id = ? AND workout_id = ?");
+
+    // Bind parameters and execute the statement
+    $stmt->bind_param("ii", $routineId, $workoutId);
+    $success = $stmt->execute();
+
+    // Close the statement
+    $stmt->close();
+
+    return $success;
+}
+
+function deleteUser($userId) {
+    global $conn;
+
+    // Delete associated records in routines table
+    $sql_delete_routines = "DELETE FROM routines WHERE user_id = ?";
+    $stmt_delete_routines = $conn->prepare($sql_delete_routines);
+    $stmt_delete_routines->bind_param("i", $userId);
     
-    $stmt = $conn->prepare("DELETE FROM `workout_data` WHERE `routine_id`=? AND `workout_id`=? AND `user_id`=?");
-    $stmt->bind_param("iii", $routineWorkout['routine_id'], $routineWorkout['workout_id'], $userId);
-    $success = $stmt->execute();
+    if (!$stmt_delete_routines->execute()) {
+        // Handle error if deletion fails
+        return false;
+    }
 
-    $stmt->close();
-    return $success;
+    // Delete associated records in routine_workouts table
+    $sql_delete_workouts = "DELETE FROM routine_workouts WHERE user_id = ?";
+    $stmt_delete_workouts = $conn->prepare($sql_delete_workouts);
+    $stmt_delete_workouts->bind_param("i", $userId);
+    
+    if (!$stmt_delete_workouts->execute()) {
+        // Handle error if deletion fails
+        return false;
+    }
+
+    // Delete the user from the users table
+    $sql_delete_user = "DELETE FROM users WHERE user_id = ?";
+    $stmt_delete_user = $conn->prepare($sql_delete_user);
+    $stmt_delete_user->bind_param("i", $userId);
+
+    if ($stmt_delete_user->execute()) {
+        return true; // Return true if deletion was successful
+    } else {
+        // Handle error if deletion fails
+        return false;
+    }
 }
 
-function deleteExcessRows($routineWorkout, $userId) {
-    global $conn;
 
-    $stmt = $conn->prepare("DELETE FROM `workout_data` WHERE `routine_id`=? AND `workout_id`=? AND `user_id`=? AND `num`>?");
-    $stmt->bind_param("iiii", $routineWorkout['routine_id'], $routineWorkout['workout_id'], $userId, $routineWorkout['rows']);
-    $success = $stmt->execute();
-    $stmt->close();
-    return $success;
-}
 
-function deleteAllRows($routineId, $userId) {
-    global $conn;
-
-    $stmt = $conn->prepare("DELETE FROM `workout_data` WHERE `routine_id`=? AND `user_id`=?");
-    $stmt->bind_param("ii", $routineWorkout['routine_id'], $userId);
-    $success = $stmt->execute();
-    $stmt->close();
-    return $success;
-}
 ?>

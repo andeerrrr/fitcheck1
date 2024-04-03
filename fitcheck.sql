@@ -151,3 +151,12 @@ VALUES (1, 1, 1, 10, 20, DEFAULT);
 SELECT routine_workouts.*, workouts.workout_name 
 FROM routine_workouts 
 JOIN workouts ON routine_workouts.workout_id = workouts.workout_id;
+
+CREATE TABLE admin(
+
+    admin_username VARCHAR(225),
+    admin_password VARCHAR(225)
+);
+
+INSERT INTO admin(admin_username, admin_password)
+VALUES("admin","123");
