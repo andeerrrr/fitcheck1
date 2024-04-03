@@ -25,11 +25,10 @@ $completedWorkouts = getCompletedWorkouts($user_id);
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!--
     <nav id="navbar">
         <header>
             <span>
-                <img id="logo" src="Assets/logo.png">
+                <img id="logo" src="images/assets/logo.png">
             </span>
         </header>
 
@@ -38,28 +37,28 @@ $completedWorkouts = getCompletedWorkouts($user_id);
                 <li>
                     <a href="#">
                         <div class="hover"></div>
-                        <img src="Assets/home-icon.png">
+                        <img src="images/assets/home-icon.png">
                         <span>Feed</span>
                     </a>
                 </li><br>
                 <li>
                     <a href="#">
                         <div class="hover" id="workout"></div>
-                        <img src="Assets/workout-icon.png">
+                        <img src="images/assets/workout-icon.png">
                         <span>Workout</span>
                     </a>
                 </li><br>
                 <li>
                     <a href="#">
                         <div class="hover" id="exercises"></div>
-                        <img src="Assets/exercise-icon.png">
+                        <img src="images/assets/exercise-icon.png">
                         <span>Exercises</span>
                     </a>
                 </li><br>
                 <li>
                     <a href="#">
                         <div class="active"></div>
-                        <img src="Assets/profile-icon.png">
+                        <img src="images/assets/profile-icon.png">
                         <span>Profile</span>
                     </a>
                 </li><br>
@@ -72,14 +71,13 @@ $completedWorkouts = getCompletedWorkouts($user_id);
                 <li>
                     <a href="#">
                         <div class="hover"></div>
-                        <img src="Assets/logout-icon.png">
+                        <img src="images/assets/logout-icon.png">
                         <span>Logout</span>
                     </a>
                 </li><br>
             </ul>
         </div>
     </nav>
-    -->
 
     <div class="prof_section">
         <h2>User Profile</h2>
